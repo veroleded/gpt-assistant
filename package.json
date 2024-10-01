@@ -1,0 +1,23 @@
+{
+  "name": "gpt-assistant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "frontend:setup": "npm i --prefix frontend",
+    "frontend:build": "npm run build --prefix frontend",
+    "frontend:dev": "npm run dev --prefix frontend",
+    "backend:dev": "npm run start:dev --watch --prefix backend",
+    "backend:prisma-build": "npm run prisma-build --prefix backend",
+    "admin:setup": "npm i --prefix admin",
+    "admin:build": "npm  run build --prefix admin",
+    "admin:dev": "npm run dev --prefix admin"
+  },
+  "author": "",
+  "license": "ISC",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "admin"
+  ]
+}
