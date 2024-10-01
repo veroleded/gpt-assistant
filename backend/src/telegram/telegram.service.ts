@@ -1,4 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Ctx, Start, Update } from 'nestjs-telegraf';
+import { Telegraf } from 'telegraf';
+import { SceneContext } from 'telegraf/typings/scenes';
 
-@Injectable()
-export class TelegramService {}
+interface Context extends SceneContext {}
+@Update()
+export class TelegramService extends Telegraf<Context> {
+    @Start()
+    async onStart(@Ctx() ctx: Context) {
+        await ctx.reply('Start');
+    }
+}
