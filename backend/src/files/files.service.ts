@@ -4,32 +4,35 @@ import { resolve } from 'path';
 import { unlink } from 'fs/promises';
 import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
-import appRootPath from 'app-root-path';
+
+// Раскомментировать если нужно конвертировать ogg в mp3, так как в официальной документации openai не поддерживается формат ogg, но по факту все работает
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const ffmpeg = require('fluent-ffmpeg');
+// const ffmpeg = require('fluent-ffmpeg');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const installer = require('@ffmpeg-installer/ffmpeg');
+// const installer = require('@ffmpeg-installer/ffmpeg');
 
 @Injectable()
 export class FsService {
     constructor(private readonly httpService: HttpService) {
-        ffmpeg.setFfmpegPath(installer.path);
+        // ffmpeg.setFfmpegPath(installer.path);
     }
-    async convertToMp3(inputPath: string, outputFilename: string): Promise<string> {
-        const outputPath = resolve(appRootPath.path, 'temp', `${outputFilename}.mp3`);
-        return new Promise((resolve, reject) => {
-            ffmpeg(inputPath)
-                .inputOption('-t 30')
-                .output(outputPath)
-                .on('end', () => {
-                    this.removeFile(inputPath);
-                    resolve(outputPath);
-                })
-                .on('error', reject)
-                .run();
-        });
-    }
+    // async convertToMp3(inputPath: string, outputFilename: string): Promise<string> {
+    //     const rootPath = resolve(__dirname, '../../');
+    //     const outputPath = resolve(rootPath, 'temp', `${outputFilename}.mp3`);
+
+    //     return new Promise((resolve, reject) => {
+    //         ffmpeg(inputPath)
+    //             .inputOption('-t 30')
+    //             .output(outputPath)
+    //             .on('end', () => {
+    //                 this.removeFile(inputPath);
+    //                 resolve(outputPath);
+    //             })
+    //             .on('error', reject)
+    //             .run();
+    //     });
+    // }
 
     async downloadFile(url: string, filename: string, extension: string): Promise<string> {
         try {

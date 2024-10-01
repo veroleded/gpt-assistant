@@ -42,7 +42,7 @@ export class TelegramService extends Telegraf<Context> {
             await ctx.reply(code('Жду ответ от сервера...'));
             const fileLink = await ctx.telegram.getFileLink(voice.file_id);
             const userId = ctx.message.from.id;
-            const filepath = await this.fsService.downloadFile(fileLink.href, userId.toString(), 'mp3');
+            const filepath = await this.fsService.downloadFile(fileLink.href, userId.toString(), 'ogg');
             console.log(filepath);
             const transcription = await this.chatgptService.transcription(filepath);
             const messages = [{ role: 'user', content: transcription } as ChatCompletionUserMessageParam];
