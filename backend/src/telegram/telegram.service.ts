@@ -3,6 +3,8 @@ import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { ChatCompletionUserMessageParam } from 'openai/resources';
 import { ChatgptService } from 'src/chatgpt/chatgpt.service';
 import { FsService } from 'src/files/files.service';
+import { interTagCode } from 'src/utils/interTagCode';
+
 import { Telegraf } from 'telegraf';
 import { code } from 'telegraf/format';
 import { SceneContext } from 'telegraf/typings/scenes';
@@ -29,7 +31,7 @@ export class TelegramService extends Telegraf<Context> {
             await ctx.reply(code('Жду ответ от сервера...'));
             const messages = [{ role: 'user', content: text } as ChatCompletionUserMessageParam];
             const response = await this.chatgptService.generateTextResponse(messages);
-            await ctx.reply(response.content);
+            await ctx.replyWithHTML(interTagCode(response.content));
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');
@@ -46,7 +48,7 @@ export class TelegramService extends Telegraf<Context> {
             const transcription = await this.chatgptService.transcription(filepath);
             const messages = [{ role: 'user', content: transcription } as ChatCompletionUserMessageParam];
             const response = await this.chatgptService.generateTextResponse(messages);
-            ctx.reply(response.content);
+            await ctx.replyWithHTML(interTagCode(response.content));
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');

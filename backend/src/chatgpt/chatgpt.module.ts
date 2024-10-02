@@ -13,7 +13,7 @@ import { FsModule } from 'src/files/files.module';
             provide: OpenAI,
             useFactory: (configService: ConfigService) => {
                 const apiKey = configService.get('OPENAI_API_KEY');
-                const proxy = configService.get('PROXY_OPENAi_URL');
+                const proxy = configService.get('PROXY_OPENAI_URL');
                 return new OpenAI({ apiKey, baseURL: proxy });
             },
             inject: [ConfigService],
