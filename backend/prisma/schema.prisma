@@ -31,6 +31,16 @@ model Session {
   messages      Message[]
 }
 
+model Message {
+  id       String   @id @default(uuid())
+  role     String
+  content  String
+  createAt DateTime @default(now()) @map("creat_at")
+
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String  @map("session_id")
+}
+
 model SessionOnUser {
   id        String  @id @default(uuid())
   user      User    @relation(fields: [userId], references: [id])
@@ -41,12 +51,3 @@ model SessionOnUser {
   @@map("session_on_user")
 }
 
-model Message {
-  id       String   @id @default(uuid())
-  role     String
-  content  String
-  createAt DateTime @default(now()) @map("creat_at")
-
-  session   Session @relation(fields: [sessionId], references: [id])
-  sessionId String  @map("session_id")
-}
