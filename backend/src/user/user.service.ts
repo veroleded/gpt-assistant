@@ -8,7 +8,7 @@ export class UserService {
   constructor(private readonly prismaService: PrismaService) { };
   async create(createUserDto: CreateUserDto) {
 
-    const user = await this.findOne(createUserDto.tgId);
+    const user = await this.findOne(createUserDto.id);
     if (user) {
       return user;
     }
@@ -21,12 +21,8 @@ export class UserService {
     return `This action returns all user`;
   }
 
-  async findOne(tgId: number) {
-    return await this.prismaService.user.findFirst({
-      where: {
-        tgId
-      }
-    });
+  async findOne(id: number) {
+    return await this.prismaService.user.findUnique({ where: { id } });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

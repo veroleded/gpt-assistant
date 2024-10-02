@@ -2,9 +2,8 @@ import { User } from '@prisma/client';
 import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class IUserEntity implements User {
-  id: string;
   @IsInt()
-  tgId: number;
+  id: number;
   @IsString()
   @IsNotEmpty()
   firstName: string;

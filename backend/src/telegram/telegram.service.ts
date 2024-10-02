@@ -26,7 +26,7 @@ export class TelegramService extends Telegraf<Context> {
     async onStart(@Ctx() ctx: Context) {
         const {id, first_name, last_name, language_code, username} = ctx.message.from;
         const user = await this.userService.create({
-            tgId: id,
+            id: id,
             firstName: first_name,
             lastName: last_name,
             languageCode: language_code,

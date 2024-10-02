@@ -3,7 +3,7 @@ import { IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateUserDto {
   @IsInt()
-  tgId: number;
+  id: number;
 
   @IsString()
   @IsNotEmpty()

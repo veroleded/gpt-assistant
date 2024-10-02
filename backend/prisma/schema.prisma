@@ -14,10 +14,39 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(uuid())
-  tgId         Int     @unique @map("tg_id")
+  id           Int     @id
   firstName    String  @map("first_name")
   lastName     String? @map("last_name")
   username     String? @unique
-  languageCode String?
+  languageCode String? @map("language_code")
+
+  sessionOnUser SessionOnUser[]
+}
+
+model Session {
+  id            String          @id @default(uuid())
+  sessionOnUser SessionOnUser[]
+  model         String          @default("gpt-3.5-turbo")
+  context       String?
+  messages      Message[]
+}
+
+model SessionOnUser {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @map("user_id")
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String  @map("session_id")
+
+  @@map("session_on_user")
+}
+
+model Message {
+  id       String   @id @default(uuid())
+  role     String
+  content  String
+  createAt DateTime @default(now()) @map("creat_at")
+
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String  @map("session_id")
 }
