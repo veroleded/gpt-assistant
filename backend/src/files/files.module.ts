@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { FsService } from './files.service';
+import { FilesService } from './files.service';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-    providers: [FsService],
-    exports: [FsService],
+    providers: [FilesService],
+    exports: [FilesService],
     imports: [HttpModule],
 })
 export class FsModule {}

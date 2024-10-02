@@ -2,7 +2,9 @@ import { ConfigService } from '@nestjs/config';
 import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { ChatCompletionUserMessageParam } from 'openai/resources';
 import { ChatgptService } from 'src/chatgpt/chatgpt.service';
-import { FsService } from 'src/files/files.service';
+import { FilesService } from 'src/files/files.service';
+import { interTagCode } from 'src/utils/interTagCode';
+
 import { Telegraf } from 'telegraf';
 import { code } from 'telegraf/format';
 import { SceneContext } from 'telegraf/typings/scenes';
@@ -13,7 +15,7 @@ export class TelegramService extends Telegraf<Context> {
     constructor(
         private readonly configService: ConfigService,
         private readonly chatgptService: ChatgptService,
-        private readonly fsService: FsService,
+        private readonly filesService: FilesService,
     ) {
         super(configService.get('TELEGRAM_BOT_TOKEN'));
     }
@@ -28,8 +30,13 @@ export class TelegramService extends Telegraf<Context> {
         try {
             await ctx.reply(code('Жду ответ от сервера...'));
             const messages = [{ role: 'user', content: text } as ChatCompletionUserMessageParam];
+            const userId = ctx.message.from.id
             const response = await this.chatgptService.generateTextResponse(messages);
-            await ctx.reply(response.content);
+            await ctx.replyWithHTML(interTagCode(response.content));
+
+            const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
+            await ctx.replyWithAudio({source: audioFilepath});
+            await this.filesService.removeFile(audioFilepath);
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');
@@ -42,12 +49,15 @@ export class TelegramService extends Telegraf<Context> {
             await ctx.reply(code('Жду ответ от сервера...'));
             const fileLink = await ctx.telegram.getFileLink(voice.file_id);
             const userId = ctx.message.from.id;
-            const filepath = await this.fsService.downloadFile(fileLink.href, userId.toString(), 'mp3');
-            console.log(filepath);
+            const filepath = await this.filesService.downloadFile(fileLink.href, userId.toString(), 'ogg');
             const transcription = await this.chatgptService.transcription(filepath);
             const messages = [{ role: 'user', content: transcription } as ChatCompletionUserMessageParam];
             const response = await this.chatgptService.generateTextResponse(messages);
-            ctx.reply(response.content);
+            await ctx.replyWithHTML(interTagCode(response.content));
+
+            const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
+            await ctx.replyWithAudio({source: audioFilepath});
+            await this.filesService.removeFile(audioFilepath);
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');
