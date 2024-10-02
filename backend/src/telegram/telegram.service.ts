@@ -3,6 +3,7 @@ import { Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { ChatCompletionUserMessageParam } from 'openai/resources';
 import { ChatgptService } from 'src/chatgpt/chatgpt.service';
 import { FilesService } from 'src/files/files.service';
+import { UserService } from 'src/user/user.service';
 import { interTagCode } from 'src/utils/interTagCode';
 
 import { Telegraf } from 'telegraf';
@@ -16,13 +17,22 @@ export class TelegramService extends Telegraf<Context> {
         private readonly configService: ConfigService,
         private readonly chatgptService: ChatgptService,
         private readonly filesService: FilesService,
+        private readonly userService: UserService,
     ) {
         super(configService.get('TELEGRAM_BOT_TOKEN'));
     }
 
     @Start()
     async onStart(@Ctx() ctx: Context) {
-        await ctx.reply('Start');
+        const {id, first_name, last_name, language_code, username} = ctx.message.from;
+        const user = await this.userService.create({
+            tgId: id,
+            firstName: first_name,
+            lastName: last_name,
+            languageCode: language_code,
+            username
+        })
+        await ctx.reply(`Приветствую, ${user.firstName}!`);
     }
 
     @On('text')
@@ -55,9 +65,9 @@ export class TelegramService extends Telegraf<Context> {
             const response = await this.chatgptService.generateTextResponse(messages);
             await ctx.replyWithHTML(interTagCode(response.content));
 
-            // const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
-            // await ctx.replyWithAudio({source: audioFilepath});
-            // await this.filesService.removeFile(audioFilepath);
+            const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
+            await ctx.replyWithAudio({source: audioFilepath});
+            await this.filesService.removeFile(audioFilepath);
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');
