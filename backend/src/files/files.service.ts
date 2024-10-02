@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { createWriteStream } from 'fs';
+import fs, { createWriteStream } from 'fs';
+import {writeFile} from 'fs/promises'
 import { resolve } from 'path';
 import { unlink } from 'fs/promises';
 import { HttpService } from '@nestjs/axios';
@@ -13,7 +14,7 @@ import axios from 'axios';
 // const installer = require('@ffmpeg-installer/ffmpeg');
 
 @Injectable()
-export class FsService {
+export class FilesService {
     constructor(private readonly httpService: HttpService) {
         // ffmpeg.setFfmpegPath(installer.path);
     }
@@ -57,6 +58,15 @@ export class FsService {
         } catch (error) {
             throw new HttpException(`Error downloading the file: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    async writeFile (filename: string, buffer: Buffer, extension: string) {
+        const rootPath = resolve(__dirname, '../../');
+        const filePath = resolve(rootPath, 'temp', `${filename}.${extension}`);
+
+        await writeFile(filePath, buffer);
+
+        return filePath;
     }
 
     async removeFile(path: string) {

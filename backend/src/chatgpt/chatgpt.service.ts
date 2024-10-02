@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createReadStream } from 'fs';
+import { createReadStream, write } from 'fs';
 import OpenAI from 'openai';
-import { FsService } from 'src/files/files.service';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class ChatgptService {
     private readonly logger = new Logger(ChatgptService.name);
     constructor(
         private readonly openai: OpenAI,
-        private readonly fsService: FsService,
+        private readonly filesService: FilesService,
     ) {}
 
     async generateTextResponse(
@@ -28,13 +28,24 @@ export class ChatgptService {
         }
     }
 
+    async generateVoiceResponse(input: string, filename: string) {
+        const mp3 = await this.openai.audio.speech.create({
+            model: 'tts-1',
+            voice: 'alloy',
+            input
+        });
+
+        const buffer = Buffer.from(await mp3.arrayBuffer())
+        return await this.filesService.writeFile(filename, buffer, 'mp3');
+    }
+
     async transcription(filepath: string): Promise<string> {
         try {
             const response = await this.openai.audio.transcriptions.create({
                 file: createReadStream(filepath),
                 model: 'whisper-1',
             });
-            this.fsService.removeFile(filepath);
+            this.filesService.removeFile(filepath);
             return response.text;
         } catch (error) {
             this.logger.error(error);
