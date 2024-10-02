@@ -34,9 +34,9 @@ export class TelegramService extends Telegraf<Context> {
             const response = await this.chatgptService.generateTextResponse(messages);
             await ctx.replyWithHTML(interTagCode(response.content));
 
-            const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
-            await ctx.replyWithAudio({source: audioFilepath});
-            await this.filesService.removeFile(audioFilepath);
+            // const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
+            // await ctx.replyWithAudio({source: audioFilepath});
+            // await this.filesService.removeFile(audioFilepath);
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');
@@ -55,9 +55,9 @@ export class TelegramService extends Telegraf<Context> {
             const response = await this.chatgptService.generateTextResponse(messages);
             await ctx.replyWithHTML(interTagCode(response.content));
 
-            const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
-            await ctx.replyWithAudio({source: audioFilepath});
-            await this.filesService.removeFile(audioFilepath);
+            // const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
+            // await ctx.replyWithAudio({source: audioFilepath});
+            // await this.filesService.removeFile(audioFilepath);
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');

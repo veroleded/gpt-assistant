@@ -7,4 +7,4 @@ import { HttpModule } from '@nestjs/axios';
     exports: [FilesService],
     imports: [HttpModule],
 })
-export class FsModule {}
+export class FilesModule {}
