@@ -7,6 +7,7 @@ import { FilesModule } from 'src/files/files.module';
 import { UserModule } from 'src/user/user.module';
 import { SessionModule } from 'src/session/session.module';
 import { MessageModule } from 'src/message/message.module';
+import { StartScene } from './scenes/start.scene';
 
 @Module({
     imports: [
@@ -17,6 +18,6 @@ import { MessageModule } from 'src/message/message.module';
         SessionModule,
         MessageModule,
     ],
-    providers: [TelegramService],
+    providers: [TelegramService, StartScene],
 })
 export class TelegramModule {}

@@ -28,17 +28,14 @@ export class TelegramService extends Telegraf<Context> {
 
     @Start()
     async onStart(@Ctx() ctx: Context) {
-        const { id, first_name, last_name, language_code, username } = ctx.message.from;
-        const user = await this.userService.create({
-            id: id,
-            firstName: first_name,
-            lastName: last_name,
-            languageCode: language_code,
-            username,
-        });
+        const { id } = ctx.message.from;
+        const prevSession = await this.sessionService.findCurrentUserSession(id);
 
-        await this.sessionService.create(user.id);
-        await ctx.reply(`Приветствую, ${user.firstName}!`);
+        if (prevSession) {
+            return await ctx.scene.enter('start');
+        }
+
+        return await ctx.scene.enter('main');
     }
 
     @Command('new')
