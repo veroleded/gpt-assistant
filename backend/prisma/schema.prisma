@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id
+  firstName    String    @map("first_name")
+  lastName     String?   @map("last_name")
+  username     String?   @unique
+  languageCode String?   @map("language_code")
+  createAt     DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  session      Session[]
+
+  // sessionOnUser SessionOnUser[]
+}
+
+model Session {
+  id        String    @id @default(uuid())
+  model     String    @default("gpt-3.5-turbo")
+  context   String?
+  createAt  DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  messages  Message[]
+  user      User[]
+  // sessionOnUser SessionOnUser[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  role      Role
+  content   String
+  createAt  DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  session   Session @relation(fields: [sessionId], references: [id])
+  sessionId String  @map("session_id")
+}
+
+// model SessionOnUser {
+//   id        String  @id @default(uuid())
+//   user      User    @relation(fields: [userId], references: [id])
+//   userId    Int     @map("user_id")
+//   session   Session @relation(fields: [sessionId], references: [id])
+//   sessionId String  @map("session_id")
+
+//   @@map("session_on_user")
+// }
+
+enum Role {
+  assistant
+  user
+  system
+}
