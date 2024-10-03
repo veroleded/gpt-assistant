@@ -32,10 +32,10 @@ export class ChatgptService {
         const mp3 = await this.openai.audio.speech.create({
             model: 'tts-1',
             voice: 'alloy',
-            input
+            input,
         });
 
-        const buffer = Buffer.from(await mp3.arrayBuffer())
+        const buffer = Buffer.from(await mp3.arrayBuffer());
         return await this.filesService.writeFile(filename, buffer, 'mp3');
     }
 

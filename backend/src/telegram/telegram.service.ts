@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Role } from '@prisma/client';
 import { Command, Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
@@ -10,7 +11,8 @@ import { UserService } from 'src/user/user.service';
 import { Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 
-interface Context extends SceneContext { }
+interface Context extends SceneContext {}
+@Injectable()
 @Update()
 export class TelegramService extends Telegraf<Context> {
     constructor(
@@ -32,17 +34,17 @@ export class TelegramService extends Telegraf<Context> {
             firstName: first_name,
             lastName: last_name,
             languageCode: language_code,
-            username
+            username,
         });
 
-        const session = await this.sessionService.create(user.id);
+        await this.sessionService.create(user.id);
         await ctx.reply(`Приветствую, ${user.firstName}!`);
     }
 
     @Command('new')
     async onContext(@Ctx() ctx: Context) {
         const { id } = ctx.message.from;
-        const session = await this.sessionService.create(id);
+        await this.sessionService.create(id);
         await ctx.reply('История очищена!');
     }
 
@@ -56,7 +58,6 @@ export class TelegramService extends Telegraf<Context> {
 
             if (messages.length >= 20) {
                 return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
-
             }
 
             const newMessage = { role: Role.user, content: text };
@@ -88,7 +89,6 @@ export class TelegramService extends Telegraf<Context> {
             const messages = await this.messageService.findAllSessionMessages(session.id);
             if (messages.length >= 20) {
                 return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
-
             }
 
             const fileLink = await ctx.telegram.getFileLink(voice.file_id);

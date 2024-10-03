@@ -8,7 +8,15 @@ import { MessageModule } from './message/message.module';
 import { SessionModule } from './session/session.module';
 
 @Module({
-    imports: [ConfigModule.forRoot({ isGlobal: true }), TelegramModule, ChatgptModule, FilesModule, UserModule, MessageModule, SessionModule],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        TelegramModule,
+        ChatgptModule,
+        FilesModule,
+        UserModule,
+        MessageModule,
+        SessionModule,
+    ],
     controllers: [],
     providers: [],
 })

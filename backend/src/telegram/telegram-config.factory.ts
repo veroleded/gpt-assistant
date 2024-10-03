@@ -5,7 +5,7 @@ import { session } from 'telegraf';
 const telegrafModuleOptions = (config: ConfigService): TelegrafModuleOptions => {
     return {
         token: config.get('TELEGRAM_BOT_TOKEN'),
-        middlewares: [session()]
+        middlewares: [session()],
     };
 };
 

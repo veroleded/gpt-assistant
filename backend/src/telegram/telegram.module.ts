@@ -8,9 +8,15 @@ import { UserModule } from 'src/user/user.module';
 import { SessionModule } from 'src/session/session.module';
 import { MessageModule } from 'src/message/message.module';
 
-
 @Module({
-    imports: [TelegrafModule.forRootAsync(options()), ChatgptModule, FilesModule, UserModule, SessionModule, MessageModule],
+    imports: [
+        TelegrafModule.forRootAsync(options()),
+        ChatgptModule,
+        FilesModule,
+        UserModule,
+        SessionModule,
+        MessageModule,
+    ],
     providers: [TelegramService],
 })
-export class TelegramModule { }
+export class TelegramModule {}

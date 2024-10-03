@@ -4,9 +4,9 @@ import { SessionController } from './session.controller';
 import { PrismaModule } from 'src/primsa/prisma.module';
 
 @Module({
-  controllers: [SessionController],
-  providers: [SessionService],
-  imports: [PrismaModule],
-  exports: [SessionService]
+    controllers: [SessionController],
+    providers: [SessionService],
+    imports: [PrismaModule],
+    exports: [SessionService],
 })
-export class SessionModule { }
+export class SessionModule {}
