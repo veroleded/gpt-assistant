@@ -12,4 +12,6 @@ export class IUserEntity implements User {
   @IsNotEmpty()
   username: string;
   languageCode: string;
+  createAt: Date;
+  updatedAt: Date;
 }
