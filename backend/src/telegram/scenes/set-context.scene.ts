@@ -4,8 +4,8 @@ import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
 import { Markup } from 'telegraf';
 
-@Scene('start')
-export class StartScene {
+@Scene('set_context')
+export class SetContextScene {
     constructor(
         private readonly sessionService: SessionService,
         private readonly userService: UserService,
@@ -13,22 +13,7 @@ export class StartScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        const { id, first_name, last_name, language_code, username } = ctx.message.from;
-        await this.userService.create({
-            id: id,
-            firstName: first_name,
-            lastName: last_name,
-            languageCode: language_code,
-            username,
-        });
-        await this.sessionService.create(id);
-        await ctx.reply(
-            'Привет!',
-            Markup.inlineKeyboard([
-                Markup.button.callback('Задать контекст', 'context'),
-                Markup.button.callback('Выбрать модель', 'models'),
-            ]),
-        );
+        ctx.reply('Какой ответ вы хотели бы получать от ChatGPT?')
     }
 
     @Action('context')

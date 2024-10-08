@@ -13,17 +13,8 @@ export class StartScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        const { id, first_name, last_name, language_code, username } = ctx.message.from;
-        await this.userService.create({
-            id: id,
-            firstName: first_name,
-            lastName: last_name,
-            languageCode: language_code,
-            username,
-        });
-        await this.sessionService.create(id);
         await ctx.reply(
-            'Привет!',
+            'Выберете что вы хотите поменять',
             Markup.inlineKeyboard([
                 Markup.button.callback('Задать контекст', 'context'),
                 Markup.button.callback('Выбрать модель', 'models'),
