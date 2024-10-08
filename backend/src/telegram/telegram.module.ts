@@ -8,6 +8,7 @@ import { UserModule } from 'src/user/user.module';
 import { SessionModule } from 'src/session/session.module';
 import { MessageModule } from 'src/message/message.module';
 import { StartScene } from './scenes/start.scene';
+import { MenuScene } from './scenes/menu.scene';
 
 @Module({
     imports: [
@@ -18,6 +19,6 @@ import { StartScene } from './scenes/start.scene';
         SessionModule,
         MessageModule,
     ],
-    providers: [TelegramService, StartScene],
+    providers: [TelegramService, StartScene, MenuScene],
 })
 export class TelegramModule {}

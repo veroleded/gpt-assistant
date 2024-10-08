@@ -1,8 +1,7 @@
-import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
-import { Markup } from 'telegraf';
 
 @Scene('start')
 export class StartScene {
@@ -21,24 +20,22 @@ export class StartScene {
             languageCode: language_code,
             username,
         });
+        const oldSession = await this.sessionService.findCurrentUserSession(id);
+        if (oldSession) {
+            ctx.session;
+            await ctx.scene.enter('menu');
+            return;
+        }
         await this.sessionService.create(id);
-        await ctx.reply(
-            'Привет!',
-            Markup.inlineKeyboard([
-                Markup.button.callback('Задать контекст', 'context'),
-                Markup.button.callback('Выбрать модель', 'models'),
-            ]),
-        );
-    }
+        await ctx.replyWithHTML(`Привет! Этот бот открывает вам доступ к лучшим нейросетям для создания текста, изображений, написания кода и других задач.<br/>
+                                 Здесь доступны новые модели: OpenAI o1, GPT-4o, DALL•E 3 и другие.\n
+                                 Чатбот умеет:\n
+                                 1. Писать и переводить тексты\n
+                                 2. Создавать изображения\n
+                                 3. Писать и редактировать код\n
+                                 4. Решать задачи по математике\n
+                                 Чат принимает как текстовые промты так и голосовые.`);
 
-    @Action('context')
-    async SetContext(@Ctx() ctx: SceneContext) {
-        console.log('context')
-        await ctx.scene.enter('set_context');
-    }
-
-    @Action('models')
-    async setModel(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_models')
+        await ctx.scene.enter('menu');
     }
 }

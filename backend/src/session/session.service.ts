@@ -44,8 +44,11 @@ export class SessionService {
         return `This action returns a #${id} session`;
     }
 
-    update(id: number, updateSessionDto: UpdateSessionDto) {
-        return `This action updates a #${id} session`;
+    async update(id: string, updateSessionDto: UpdateSessionDto) {
+        return await this.prismaService.session.update({
+            where: { id },
+            data: updateSessionDto,
+        });
     }
 
     remove(id: number) {

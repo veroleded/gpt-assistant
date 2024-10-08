@@ -1,8 +1,7 @@
-import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Ctx, Message, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
-import { Markup } from 'telegraf';
 
 @Scene('set_context')
 export class SetContextScene {
@@ -13,17 +12,13 @@ export class SetContextScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        ctx.reply('Какой ответ вы хотели бы получать от ChatGPT?')
+        ctx.reply('Какой ответ вы хотели бы получать от ChatGPT?');
     }
 
-    @Action('context')
-    async SetContext(@Ctx() ctx: SceneContext) {
-        console.log('context')
-        await ctx.scene.enter('set_context');
-    }
-
-    @Action('models')
-    async setModel(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_models')
-    }
+    // @On('text')
+    // async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
+    //     const { id } = ctx.message.from;
+    //     await this.sessionService.update(id, { context: text });
+    //     await ctx.scene.enter('menu');
+    // }
 }
