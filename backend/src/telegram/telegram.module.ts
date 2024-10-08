@@ -9,6 +9,8 @@ import { SessionModule } from 'src/session/session.module';
 import { MessageModule } from 'src/message/message.module';
 import { StartScene } from './scenes/start.scene';
 import { MenuScene } from './scenes/menu.scene';
+import { SetContextScene } from './Scenes/set-context.scene';
+import { GptScene } from './Scenes/gpt.scene';
 
 @Module({
     imports: [
@@ -19,6 +21,6 @@ import { MenuScene } from './scenes/menu.scene';
         SessionModule,
         MessageModule,
     ],
-    providers: [TelegramService, StartScene, MenuScene],
+    providers: [TelegramService, StartScene, MenuScene, SetContextScene, GptScene],
 })
 export class TelegramModule {}

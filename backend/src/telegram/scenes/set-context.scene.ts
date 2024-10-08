@@ -15,10 +15,11 @@ export class SetContextScene {
         ctx.reply('Какой ответ вы хотели бы получать от ChatGPT?');
     }
 
-    // @On('text')
-    // async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
-    //     const { id } = ctx.message.from;
-    //     await this.sessionService.update(id, { context: text });
-    //     await ctx.scene.enter('menu');
-    // }
+    @On('text')
+    async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
+        const { id } = ctx.message.from;
+        const session = await this.sessionService.findCurrentUserSession(id);
+        await this.sessionService.update(session.id, { context: text });
+        await ctx.scene.enter('menu');
+    }
 }
