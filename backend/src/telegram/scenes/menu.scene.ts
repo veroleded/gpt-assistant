@@ -1,7 +1,6 @@
 import { Action, Ctx, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/session/session.service';
-import { UserService } from 'src/user/user.service';
 import { Markup } from 'telegraf';
 import { textModels } from 'src/chatgpt/models';
 
@@ -17,7 +16,7 @@ export class MenuScene {
             'Настройки чата\n\n' +
             'Используйте кнопку сохранить что бы перейти к диалогу.\n\n' +
             `Текущая модель: ${session.model}\n` +
-            `Тип ответа: ${session.voice ? 'Голос' : 'Текст'}\n` +
+            `Тип ответа: ${session.voice ? 'голос' : 'текст'}\n` +
             `Текущий контекст:\n ${session.context ?? 'не задан'}`;
         const voiceButton = Markup.button.callback(
             `${session.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
@@ -131,8 +130,8 @@ export class MenuScene {
             const message =
                 'Настройки чата\n\n' +
                 'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
-                `Тип ответа: ${session.voice ? 'голос' : 'текст'}\n` +
                 `Текущая модель: ${updatedSession.model}\n` +
+                `Тип ответа: ${updatedSession.voice ? 'голос' : 'текст'}\n` +
                 `Текущий контекст:\n ${updatedSession.context ?? 'не задан'}`;
             const voiceButton = Markup.button.callback(
                 `${updatedSession.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
