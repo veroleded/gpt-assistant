@@ -1,12 +1,13 @@
 import { Action, Command, Ctx, Message, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
+import { Markup } from 'telegraf';
+import { Role } from '@prisma/client';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
-import { Markup } from 'telegraf';
 import { MessageService } from 'src/message/message.service';
-import { Role } from '@prisma/client';
 import { ChatgptService } from 'src/chatgpt/chatgpt.service';
 import { FilesService } from 'src/files/files.service';
+import { escapeSymbols } from 'src/utils/escapeSymbols';
 
 @Scene('gpt_scene')
 export class GptScene {
@@ -51,7 +52,7 @@ export class GptScene {
             const session = await this.sessionService.findCurrentUserSession(userId);
             const messages = await this.messageService.findAllSessionMessages(session.id);
 
-            await ctx.reply(messages[messages.length - 1].content);
+            await ctx.reply(escapeSymbols(messages[messages.length - 1].content));
         }
     }
 
@@ -64,9 +65,8 @@ export class GptScene {
 
             const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
-            console.log(messages);
 
-            if (messages.length >= 20) {
+            if (messages.length >= 40) {
                 return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
             }
 
@@ -85,7 +85,7 @@ export class GptScene {
             await this.messageService.create({ ...gptMessage, sessionId: session.id });
 
             if (!session.voice) {
-                await ctx.reply(response.content);
+                await ctx.replyWithMarkdownV2(escapeSymbols(response.content));
             } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
                     gptMessage.content,
@@ -136,7 +136,7 @@ export class GptScene {
             await this.messageService.create({ ...gptMessage, sessionId: session.id });
 
             if (!session.voice) {
-                await ctx.reply(response.content);
+                await ctx.replyWithMarkdownV2(escapeSymbols(response.content));
             } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
                     gptMessage.content,
