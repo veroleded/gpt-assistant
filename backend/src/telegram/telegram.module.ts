@@ -9,8 +9,8 @@ import { SessionModule } from 'src/session/session.module';
 import { MessageModule } from 'src/message/message.module';
 import { StartScene } from './scenes/start.scene';
 import { MenuScene } from './scenes/menu.scene';
-import { SetContextScene } from './Scenes/set-context.scene';
-import { GptScene } from './Scenes/gpt.scene';
+import { SetContextScene } from './scenes/set-context.scene';
+import { GptScene } from './scenes/gpt.scene';
 
 @Module({
     imports: [

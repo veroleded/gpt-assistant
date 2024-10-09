@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Command, Ctx, Start, Update } from 'nestjs-telegraf';
+import { Command, Ctx, On, Start, Update } from 'nestjs-telegraf';
 import { SessionService } from 'src/session/session.service';
 
 import { Telegraf } from 'telegraf';
@@ -40,5 +40,10 @@ export class TelegramService extends Telegraf<Context> {
     @Command('menu')
     async onMenu(@Ctx() ctx: Context) {
         await ctx.scene.enter('menu');
+    }
+
+    @On('text')
+    async onText(@Ctx() ctx: Context) {
+        await ctx.scene.enter('gpt_scene');
     }
 }

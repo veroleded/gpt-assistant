@@ -20,7 +20,13 @@ export class GptScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        await ctx.reply('Задайте свой вопрос');
+        if (!ctx.message) {
+            await ctx.reply('Задайте свой вопрос');
+        } else {
+            if ('text' in ctx.message) {
+                await this.onMessage(ctx, ctx.message.text);
+            }
+        }
     }
 
     @Command('new')
@@ -58,6 +64,7 @@ export class GptScene {
 
             const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
+            console.log(messages);
 
             if (messages.length >= 20) {
                 return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
@@ -68,23 +75,20 @@ export class GptScene {
             }
 
             const newMessage = { role: Role.user, content: text };
+
             messages.push(newMessage);
 
             const response = await this.chatgptService.generateTextResponse(messages);
             const gptMessage = { role: Role.assistant, content: response.content };
 
-            messages.push(gptMessage);
-            messages.shift();
-
-            await this.messageService.createMany(messages.map((message) => ({ ...message, sessionId: session.id })));
+            await this.messageService.create({ ...newMessage, sessionId: session.id });
+            await this.messageService.create({ ...gptMessage, sessionId: session.id });
 
             if (!session.voice) {
                 await ctx.reply(response.content);
-            }
-
-            if (session.voice) {
+            } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
-                    response.content,
+                    gptMessage.content,
                     userId.toString(),
                 );
                 await ctx.replyWithAudio(
@@ -108,8 +112,8 @@ export class GptScene {
 
             const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
+
             if (messages.length >= 20) {
-                console.log(messages);
                 await ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
                 return;
             }
@@ -128,18 +132,14 @@ export class GptScene {
             const response = await this.chatgptService.generateTextResponse(messages);
             const gptMessage = { role: Role.assistant, content: response.content };
 
-            messages.push(gptMessage);
-            messages.shift();
-
-            await this.messageService.createMany(messages.map((message) => ({ ...message, sessionId: session.id })));
+            await this.messageService.create({ ...newMessage, sessionId: session.id });
+            await this.messageService.create({ ...gptMessage, sessionId: session.id });
 
             if (!session.voice) {
                 await ctx.reply(response.content);
-            }
-
-            if (session.voice) {
+            } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
-                    response.content,
+                    gptMessage.content,
                     userId.toString(),
                 );
                 await ctx.replyWithAudio(

@@ -160,6 +160,6 @@ export class MenuScene {
 
     @On('text')
     async onText(@Ctx() ctx: SceneContext) {
-        await ctx.reply('Для взаимодействия используйте кнпоки')
+        await ctx.reply('Для взаимодействия используйте кнпоки');
     }
 }

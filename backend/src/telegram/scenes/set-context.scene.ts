@@ -12,7 +12,9 @@ export class SetContextScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        ctx.reply('Какой ответ вы хотели бы получать от ChatGPT?');
+        ctx.editMessageText(
+            'Опишите как должен вести себя бот. Пример описания:\n' + 'Отвечай как будто ты великий математик.',
+        );
     }
 
     @On('text')
