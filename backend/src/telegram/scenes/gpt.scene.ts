@@ -1,4 +1,4 @@
-import { Command, Ctx, Message, On, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Command, Ctx, Message, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
@@ -16,12 +16,11 @@ export class GptScene {
         private readonly messageService: MessageService,
         private readonly chatgptService: ChatgptService,
         private readonly filesService: FilesService,
-
     ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        await ctx.reply('Чем я могу вам помочь?')
+        await ctx.reply('Задайте свой вопрос');
     }
 
     @Command('new')
@@ -37,6 +36,19 @@ export class GptScene {
         await ctx.scene.enter('menu');
     }
 
+    @Action('text')
+    async getTextTranscription(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
+
+        if ('data' in callbackQuery) {
+            const userId = callbackQuery.from.id;
+            const session = await this.sessionService.findCurrentUserSession(userId);
+            const messages = await this.messageService.findAllSessionMessages(session.id);
+
+            await ctx.reply(messages[messages.length - 1].content);
+        }
+    }
+
     @On('text')
     async onMessage(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
@@ -44,16 +56,15 @@ export class GptScene {
 
             const session = await this.sessionService.findCurrentUserSession(userId);
 
-            const symstemMessage = session.context ? {role: Role.system, content: session.context} : undefined;
+            const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
-
 
             if (messages.length >= 20) {
                 return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
             }
 
             if (symstemMessage) {
-              messages.unshift(symstemMessage);
+                messages.unshift(symstemMessage);
             }
 
             const newMessage = { role: Role.user, content: text };
@@ -68,9 +79,17 @@ export class GptScene {
 
             await ctx.reply(response.content);
 
-            // const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
-            // await ctx.replyWithAudio({source: audioFilepath});
-            // await this.filesService.removeFile(audioFilepath);
+            if (session.voice) {
+                const audioFilepath = await this.chatgptService.generateVoiceResponse(
+                    response.content,
+                    userId.toString(),
+                );
+                await ctx.replyWithAudio(
+                    { source: audioFilepath },
+                    Markup.inlineKeyboard([Markup.button.callback('Получить текстовый ответ', 'text')]),
+                );
+                await this.filesService.removeFile(audioFilepath);
+            }
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');
@@ -84,14 +103,14 @@ export class GptScene {
 
             const session = await this.sessionService.findCurrentUserSession(userId);
 
-            const symstemMessage = session.context ? {role: Role.system, content: session.context} : undefined;
+            const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
             if (messages.length >= 20) {
                 return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
             }
 
             if (symstemMessage) {
-              messages.unshift(symstemMessage);
+                messages.unshift(symstemMessage);
             }
 
             const fileLink = await ctx.telegram.getFileLink(voice.file_id);
@@ -110,9 +129,17 @@ export class GptScene {
 
             await ctx.reply(response.content);
 
-            const audioFilepath = await this.chatgptService.generateVoiceResponse(response.content, userId.toString());
-            await ctx.replyWithAudio({ source: audioFilepath });
-            await this.filesService.removeFile(audioFilepath);
+            if (session.voice) {
+                const audioFilepath = await this.chatgptService.generateVoiceResponse(
+                    response.content,
+                    userId.toString(),
+                );
+                await ctx.replyWithAudio(
+                    { source: audioFilepath },
+                    Markup.inlineKeyboard([Markup.button.callback('Получить текстовый ответ', 'text')]),
+                );
+                await this.filesService.removeFile(audioFilepath);
+            }
         } catch (error) {
             console.log(error);
             await ctx.reply('Error');

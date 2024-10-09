@@ -32,6 +32,7 @@ model Session {
   context   String?
   createAt  DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
+  voice     Boolean   @default(false)
   messages  Message[]
   user      User[]
   // sessionOnUser SessionOnUser[]

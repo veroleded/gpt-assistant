@@ -1,4 +1,4 @@
-import { Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Ctx, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
@@ -37,5 +37,10 @@ export class StartScene {
                                  Чат принимает как текстовые промты так и голосовые.`);
 
         await ctx.scene.enter('menu');
+    }
+
+    @On('text')
+    async onText(@Ctx() ctx: SceneContext) {
+        await ctx.reply('Для взаимодействия используйте кнпоки');
     }
 }

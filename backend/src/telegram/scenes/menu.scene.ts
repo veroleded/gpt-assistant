@@ -1,4 +1,4 @@
-import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Ctx, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
@@ -7,24 +7,32 @@ import { textModels } from 'src/chatgpt/models';
 
 @Scene('menu')
 export class MenuScene {
-    constructor(
-        private readonly sessionService: SessionService,
-    ) {}
+    constructor(private readonly sessionService: SessionService) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
         const userId = ctx.message.from.id;
         const session = await this.sessionService.findCurrentUserSession(userId);
         const message =
-            'Что вы хотите поменять?\n' +
+            'Настройки чата\n\n' +
+            'Используйте кнопку сохранить что бы перейти к диалогу.\n\n' +
             `Текущая модель: ${session.model}\n` +
+            `Тип ответа: ${session.voice ? 'Голос' : 'Текст'}\n` +
             `Текущий контекст:\n ${session.context ?? 'не задан'}`;
-        await ctx.replyWithHTML(
+        const voiceButton = Markup.button.callback(
+            `${session.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
+            'voice',
+        );
+
+        await ctx.reply(
             message,
             Markup.inlineKeyboard([
-                Markup.button.callback('Задать контекст', 'context'),
-                Markup.button.callback('Выбрать модель', 'models'),
-                Markup.button.callback('Сохранить', 'save'),
+                [
+                    Markup.button.callback('Задать контекст', 'context'),
+                    Markup.button.callback('Выбрать модель', 'models'),
+                ],
+                [voiceButton],
+                [Markup.button.callback('Сохранить', 'save')],
             ]),
         );
     }
@@ -46,28 +54,35 @@ export class MenuScene {
 
     @Action('back')
     async back(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
 
-      const callbackQuery = ctx.callbackQuery
-
-      if ('data' in callbackQuery) {
-        const userId = callbackQuery.from.id;
-        const session = await this.sessionService.findCurrentUserSession(userId);
-        const message =
-            'Что вы хотите поменять?\n' +
-            `Текущая модель: ${session.model}\n` +
-            `Текущий контекст:\n ${session.context ?? 'не задан'}`;
-        await ctx.editMessageText(
-            message,
-            Markup.inlineKeyboard([
-                Markup.button.callback('Задать контекст', 'context'),
-                Markup.button.callback('Выбрать модель', 'models'),
-                Markup.button.callback('Сохранить', 'save'),
-            ]),
-        );
-    } else {
-        await ctx.reply('Произошла ошибка при выборе модели.');
-    }
-     
+        if ('data' in callbackQuery) {
+            const userId = callbackQuery.from.id;
+            const session = await this.sessionService.findCurrentUserSession(userId);
+            const voiceButton = Markup.button.callback(
+                `${session.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
+                'voice',
+            );
+            const message =
+                'Настройки чата\n\n' +
+                'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
+                `Текущая модель: ${session.model}\n` +
+                `Тип ответа: ${session.voice ? 'голос' : 'текст'}\n` +
+                `Текущий контекст:\n ${session.context ?? 'не задан'}`;
+            await ctx.editMessageText(
+                message,
+                Markup.inlineKeyboard([
+                    [
+                        Markup.button.callback('Задать контекст', 'context'),
+                        Markup.button.callback('Выбрать модель', 'models'),
+                    ],
+                    [voiceButton],
+                    [Markup.button.callback('Сохранить', 'save')],
+                ]),
+            );
+        } else {
+            await ctx.reply('Произошла ошибка при выборе модели.');
+        }
     }
 
     @Action(Object.keys(textModels))
@@ -79,16 +94,25 @@ export class MenuScene {
             const session = await this.sessionService.findCurrentUserSession(userId);
             const newModel = textModels[callbackQuery.data];
             const newSession = await this.sessionService.update(session.id, { model: newModel });
+            const voiceButton = Markup.button.callback(
+                `${session.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
+                'voice',
+            );
             const message =
-                'Что вы хотите поменять?\n' +
+                'Настройки чата\n\n' +
+                'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
                 `Текущая модель: ${newSession.model}\n` +
+                `Тип ответа: ${newSession.voice ? 'голос' : 'текст'}\n` +
                 `Текущий контекст:\n ${newSession.context ?? 'не задан'}`;
             await ctx.editMessageText(
                 message,
                 Markup.inlineKeyboard([
-                    Markup.button.callback('Задать контекст', 'context'),
-                    Markup.button.callback('Выбрать модель', 'models'),
-                    Markup.button.callback('Сохранить', 'save'),
+                    [
+                        Markup.button.callback('Задать контекст', 'context'),
+                        Markup.button.callback('Выбрать модель', 'models'),
+                    ],
+                    [voiceButton],
+                    [Markup.button.callback('Сохранить', 'save')],
                 ]),
             );
         } else {
@@ -96,9 +120,47 @@ export class MenuScene {
         }
     }
 
+    @Action('voice')
+    async onVoice(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
+
+        if ('data' in callbackQuery) {
+            const userId = callbackQuery.from.id;
+            const session = await this.sessionService.findCurrentUserSession(userId);
+            const updatedSession = await this.sessionService.update(session.id, { voice: !session.voice });
+            const message =
+                'Настройки чата\n\n' +
+                'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
+                `Тип ответа: ${session.voice ? 'голос' : 'текст'}\n` +
+                `Текущая модель: ${updatedSession.model}\n` +
+                `Текущий контекст:\n ${updatedSession.context ?? 'не задан'}`;
+            const voiceButton = Markup.button.callback(
+                `${updatedSession.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
+                'voice',
+            );
+
+            await ctx.editMessageText(
+                message,
+                Markup.inlineKeyboard([
+                    [
+                        Markup.button.callback('Задать контекст', 'context'),
+                        Markup.button.callback('Выбрать модель', 'models'),
+                    ],
+                    [voiceButton],
+                    [Markup.button.callback('Сохранить', 'save')],
+                ]),
+            );
+        }
+    }
+
     @Action('save')
     async save(@Ctx() ctx: SceneContext) {
-      await ctx.reply('Настройки сохранены! Для изменения используйте команду /menu');
-      await ctx.scene.enter('gpt_scene');
+        await ctx.reply('Настройки сохранены! Для изменения используйте команду /menu');
+        await ctx.scene.enter('gpt_scene');
+    }
+
+    @On('text')
+    async onText(@Ctx() ctx: SceneContext) {
+        await ctx.reply('Для взаимодействия используйте кнпоки')
     }
 }
