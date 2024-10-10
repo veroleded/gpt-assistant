@@ -27,6 +27,10 @@ export class GptScene {
             if ('text' in ctx.message) {
                 await this.onMessage(ctx, ctx.message.text);
             }
+
+            if ('voice' in ctx.message) {
+                await this.onVoice(ctx, ctx.message.voice);
+            }
         }
     }
 
@@ -52,7 +56,7 @@ export class GptScene {
             const session = await this.sessionService.findCurrentUserSession(userId);
             const messages = await this.messageService.findAllSessionMessages(session.id);
 
-            await ctx.reply(escapeSymbols(messages[messages.length - 1].content));
+            await ctx.replyWithMarkdownV2(escapeSymbols(messages[messages.length - 1].content));
         }
     }
 

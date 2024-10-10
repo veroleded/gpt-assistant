@@ -46,4 +46,9 @@ export class TelegramService extends Telegraf<Context> {
     async onText(@Ctx() ctx: Context) {
         await ctx.scene.enter('gpt_scene');
     }
+
+    @On('voice')
+    async onVoice(@Ctx() ctx: Context) {
+        await ctx.scene.enter('gpt_scene');
+    }
 }
