@@ -37,7 +37,7 @@ export class FilesService {
 
     async downloadFile(url: string, filename: string, extension: string): Promise<string> {
         try {
-            const rootPath = resolve(__dirname, '../../');
+            const rootPath = resolve(__dirname, '../../../');
             const filePath = resolve(rootPath, 'temp', `${filename}.${extension}`);
 
             const response = await axios.get(url, {
@@ -61,7 +61,7 @@ export class FilesService {
     }
 
     async writeFile(filename: string, buffer: Buffer, extension: string) {
-        const rootPath = resolve(__dirname, '../../');
+        const rootPath = resolve(__dirname, '../../../');
         const filePath = resolve(rootPath, 'temp', `${filename}.${extension}`);
 
         await writeFile(filePath, buffer);
