@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Command, Ctx, On, Start, Update } from 'nestjs-telegraf';
-import { SessionService } from 'src/session/session.service';
+import { SessionService } from 'src/modules/session/session.service';
 
 import { Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';

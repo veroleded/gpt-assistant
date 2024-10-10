@@ -2,12 +2,12 @@ import { Action, Command, Ctx, Message, On, Scene, SceneEnter } from 'nestjs-tel
 import { SceneContext } from 'telegraf/typings/scenes';
 import { Markup } from 'telegraf';
 import { Role } from '@prisma/client';
-import { SessionService } from 'src/session/session.service';
-import { UserService } from 'src/user/user.service';
-import { MessageService } from 'src/message/message.service';
-import { ChatgptService } from 'src/chatgpt/chatgpt.service';
-import { FilesService } from 'src/files/files.service';
+import { SessionService } from 'src/modules/session/session.service';
+import { UserService } from 'src/modules/user/user.service';
+import { MessageService } from 'src/modules/message/message.service';
+import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { escapeSymbols } from 'src/utils/escapeSymbols';
+import { FilesService } from 'src/libs/files/files.service';
 
 @Scene('gpt_scene')
 export class GptScene {

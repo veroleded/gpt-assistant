@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
-import { PrismaService } from 'src/primsa/prisma.service';
+import { PrismaService } from 'src/libs/primsa/prisma.service';
 
 @Injectable()
 export class SessionService {

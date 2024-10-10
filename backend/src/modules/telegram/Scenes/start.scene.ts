@@ -1,7 +1,7 @@
 import { Ctx, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
-import { SessionService } from 'src/session/session.service';
-import { UserService } from 'src/user/user.service';
+import { SessionService } from 'src/modules/session/session.service';
+import { UserService } from 'src/modules/user/user.service';
 
 @Scene('start')
 export class StartScene {

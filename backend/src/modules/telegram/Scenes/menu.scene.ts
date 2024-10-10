@@ -1,8 +1,8 @@
 import { Action, Ctx, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
-import { SessionService } from 'src/session/session.service';
+import { SessionService } from 'src/modules/session/session.service';
 import { Markup } from 'telegraf';
-import { textModels } from 'src/chatgpt/models';
+import { textModels } from 'src/modules/chatgpt/models';
 
 @Scene('menu')
 export class MenuScene {

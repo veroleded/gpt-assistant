@@ -3,7 +3,7 @@ import { ChatgptService } from './chatgpt.service';
 import { HttpModule } from '@nestjs/axios';
 import OpenAI from 'openai';
 import { ConfigService } from '@nestjs/config';
-import { FilesModule } from 'src/files/files.module';
+import { FilesModule } from 'src/modules/files/files.module';
 
 @Module({
     imports: [HttpModule, FilesModule],
