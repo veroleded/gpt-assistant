@@ -10,7 +10,7 @@ export class MenuScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        const userId = ctx.message.from.id;
+        const userId = ctx.message.from.id.toString();
         const session = await this.sessionService.findCurrentUserSession(userId);
         const message =
             'Настройки чата\n\n' +
@@ -38,7 +38,6 @@ export class MenuScene {
 
     @Action('context')
     async SetContext(@Ctx() ctx: SceneContext) {
-        console.log('context');
         await ctx.scene.enter('set_context');
     }
 
@@ -56,7 +55,7 @@ export class MenuScene {
         const callbackQuery = ctx.callbackQuery;
 
         if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id;
+            const userId = callbackQuery.from.id.toString();
             const session = await this.sessionService.findCurrentUserSession(userId);
             const voiceButton = Markup.button.callback(
                 `${session.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
@@ -89,7 +88,7 @@ export class MenuScene {
         const callbackQuery = ctx.callbackQuery;
 
         if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id;
+            const userId = callbackQuery.from.id.toString();
             const session = await this.sessionService.findCurrentUserSession(userId);
             const newModel = textModels[callbackQuery.data];
             const newSession = await this.sessionService.update(session.id, { model: newModel });
@@ -124,7 +123,7 @@ export class MenuScene {
         const callbackQuery = ctx.callbackQuery;
 
         if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id;
+            const userId = callbackQuery.from.id.toString();
             const session = await this.sessionService.findCurrentUserSession(userId);
             const updatedSession = await this.sessionService.update(session.id, { voice: !session.voice });
             const message =

@@ -20,19 +20,19 @@ export class TelegramService extends Telegraf<Context> {
     @Start()
     async onStart(@Ctx() ctx: Context) {
         const { id } = ctx.message.from;
-        const prevSession = await this.sessionService.findCurrentUserSession(id);
+        const prevSession = await this.sessionService.findCurrentUserSession(id.toString());
 
-        if (prevSession) {
+        if (!prevSession) {
             return await ctx.scene.enter('start');
         }
 
-        return await ctx.scene.enter('main');
+        return await ctx.scene.enter('menu');
     }
 
     @Command('new')
     async onContext(@Ctx() ctx: Context) {
         const { id } = ctx.message.from;
-        await this.sessionService.create(id);
+        await this.sessionService.create(id.toString());
         await ctx.reply('История очищена!');
         await ctx.scene.enter('menu');
     }

@@ -33,7 +33,7 @@ export class GptScene {
     @Command('new')
     async onContext(@Ctx() ctx: SceneContext) {
         const { id } = ctx.message.from;
-        await this.sessionService.create(id);
+        await this.sessionService.create(id.toString());
         await ctx.reply('История очищена!');
         await ctx.scene.enter('menu');
     }
@@ -48,7 +48,7 @@ export class GptScene {
         const callbackQuery = ctx.callbackQuery;
 
         if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id;
+            const userId = callbackQuery.from.id.toString();
             const session = await this.sessionService.findCurrentUserSession(userId);
             const messages = await this.messageService.findAllSessionMessages(session.id);
 
@@ -59,7 +59,7 @@ export class GptScene {
     @On('text')
     async onMessage(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
-            const userId = ctx.message.from.id;
+            const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
 
@@ -106,7 +106,7 @@ export class GptScene {
     @On('voice')
     async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
         try {
-            const userId = ctx.message.from.id;
+            const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
 

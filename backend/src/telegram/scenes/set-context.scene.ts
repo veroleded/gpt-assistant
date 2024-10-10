@@ -20,7 +20,7 @@ export class SetContextScene {
     @On('text')
     async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         const { id } = ctx.message.from;
-        const session = await this.sessionService.findCurrentUserSession(id);
+        const session = await this.sessionService.findCurrentUserSession(id.toString());
         await this.sessionService.update(session.id, { context: text });
         await ctx.scene.enter('menu');
     }
