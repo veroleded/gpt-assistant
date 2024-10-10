@@ -8,10 +8,10 @@ import { SessionModule } from 'src/modules/session/session.module';
 import { MessageModule } from 'src/modules/message/message.module';
 import { FilesModule } from 'src/libs/files/files.module';
 import { BalanceModule } from 'src/libs/balance/balance.module';
-import { StartScene } from './asd/start.scene';
-import { MenuScene } from './asd/menu.scene';
-import { SetContextScene } from './asd/set-context.scene';
-import { GptScene } from './asd/gpt.scene';
+import { StartScene } from './scenes/start.scene';
+import { MenuScene } from './scenes/menu.scene';
+import { SetContextScene } from './scenes/set-context.scene';
+import { GptScene } from './scenes/gpt.scene';
 
 @Module({
     imports: [
