@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Command, Ctx, On, Start, Update } from 'nestjs-telegraf';
+import { BalanceService } from 'src/libs/balance/balance.service';
 import { SessionService } from 'src/modules/session/session.service';
 
 import { Telegraf } from 'telegraf';
@@ -13,6 +14,7 @@ export class TelegramService extends Telegraf<Context> {
     constructor(
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
+        private readonly balanceService: BalanceService,
     ) {
         super(configService.get('TELEGRAM_BOT_TOKEN'));
     }
@@ -27,6 +29,12 @@ export class TelegramService extends Telegraf<Context> {
         }
 
         return await ctx.scene.enter('menu');
+    }
+
+    @Command('balance')
+    async onBalance(@Ctx() ctx: Context) {
+        const balance = await this.balanceService.getBalance();
+        await ctx.reply(balance + ' рублей.');
     }
 
     @Command('new')
