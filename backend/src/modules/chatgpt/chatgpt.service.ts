@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createReadStream, write } from 'fs';
 import OpenAI from 'openai';
-import { FilesService } from 'src/files/files.service';
+import { FilesService } from 'src/libs/files/files.service';
+
 
 @Injectable()
 export class ChatgptService {
@@ -32,10 +33,10 @@ export class ChatgptService {
         const mp3 = await this.openai.audio.speech.create({
             model: 'tts-1',
             voice: 'alloy',
-            input
+            input,
         });
 
-        const buffer = Buffer.from(await mp3.arrayBuffer())
+        const buffer = Buffer.from(await mp3.arrayBuffer());
         return await this.filesService.writeFile(filename, buffer, 'mp3');
     }
 

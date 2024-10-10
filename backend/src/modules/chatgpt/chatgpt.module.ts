@@ -3,10 +3,11 @@ import { ChatgptService } from './chatgpt.service';
 import { HttpModule } from '@nestjs/axios';
 import OpenAI from 'openai';
 import { ConfigService } from '@nestjs/config';
-import { FsModule } from 'src/files/files.module';
+import { FilesModule } from 'src/libs/files/files.module';
+;
 
 @Module({
-    imports: [HttpModule, FsModule],
+    imports: [HttpModule, FilesModule],
     providers: [
         ChatgptService,
         {
