@@ -34,17 +34,17 @@ export class GptScene {
         }
     }
 
-    @Command('new')
+    @Command('deletecontext')
     async onContext(@Ctx() ctx: SceneContext) {
         const { id } = ctx.message.from;
         await this.sessionService.create(id.toString());
         await ctx.reply('История очищена!');
-        await ctx.scene.enter('menu');
+        await ctx.scene.enter('gpt_scene');
     }
 
-    @Command('menu')
+    @Command('settings')
     async onMenu(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('menu');
+        await ctx.scene.enter('settings');
     }
 
     @Action('text')
@@ -63,6 +63,7 @@ export class GptScene {
     @On('text')
     async onMessage(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
+            const infoMessage = await ctx.reply('<code>Подождите, идет генерация ответа...</code>');
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
@@ -89,12 +90,14 @@ export class GptScene {
             await this.messageService.create({ ...gptMessage, sessionId: session.id });
 
             if (!session.voice) {
+                await ctx.deleteMessage(infoMessage.message_id);
                 await ctx.replyWithMarkdownV2(escapeSymbols(response.content));
             } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
                     gptMessage.content,
                     userId.toString(),
                 );
+                await ctx.deleteMessage(infoMessage.message_id);
                 await ctx.replyWithAudio(
                     { source: audioFilepath },
                     Markup.inlineKeyboard([Markup.button.callback('Получить текстовый ответ', 'text')]),
@@ -110,6 +113,7 @@ export class GptScene {
     @On('voice')
     async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
         try {
+            const infoMessage = await ctx.reply('<code>Подождите, идет генерация ответа...</code>');
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
@@ -140,12 +144,14 @@ export class GptScene {
             await this.messageService.create({ ...gptMessage, sessionId: session.id });
 
             if (!session.voice) {
+                await ctx.deleteMessage(infoMessage.message_id);
                 await ctx.replyWithMarkdownV2(escapeSymbols(response.content));
             } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
                     gptMessage.content,
                     userId.toString(),
                 );
+                await ctx.deleteMessage(infoMessage.message_id);
                 await ctx.replyWithAudio(
                     { source: audioFilepath },
                     Markup.inlineKeyboard([Markup.button.callback('Получить текстовый ответ', 'text')]),

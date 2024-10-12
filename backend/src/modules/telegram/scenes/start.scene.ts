@@ -23,7 +23,7 @@ export class StartScene {
         const oldSession = await this.sessionService.findCurrentUserSession(id.toString());
         if (oldSession) {
             ctx.session;
-            await ctx.scene.enter('menu');
+            await ctx.scene.enter('gpt_scene');
             return;
         }
         await this.sessionService.create(id.toString());
@@ -38,11 +38,11 @@ export class StartScene {
                 'Чат принимает как текстовые запросы и ответы так и голосовые.',
         );
 
-        await ctx.scene.enter('menu');
+        await ctx.scene.enter('gpt_scene');
     }
 
     @On('text')
     async onText(@Ctx() ctx: SceneContext) {
-        await ctx.reply('Для взаимодействия используйте кнпоки');
+        await ctx.scene.enter('gpt_scene');
     }
 }

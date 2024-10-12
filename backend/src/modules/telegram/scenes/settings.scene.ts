@@ -4,8 +4,8 @@ import { SessionService } from 'src/modules/session/session.service';
 import { Markup } from 'telegraf';
 import { textModels } from 'src/modules/chatgpt/models';
 
-@Scene('menu')
-export class MenuScene {
+@Scene('settings')
+export class SettingsScene {
     constructor(private readonly sessionService: SessionService) {}
 
     @SceneEnter()

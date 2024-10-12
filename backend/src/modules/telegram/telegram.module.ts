@@ -9,7 +9,7 @@ import { MessageModule } from 'src/modules/message/message.module';
 import { FilesModule } from 'src/libs/files/files.module';
 import { BalanceModule } from 'src/libs/balance/balance.module';
 import { StartScene } from './scenes/start.scene';
-import { MenuScene } from './scenes/menu.scene';
+import { SettingsScene } from './scenes/settings.scene';
 import { SetContextScene } from './scenes/set-context.scene';
 import { GptScene } from './scenes/gpt.scene';
 
@@ -21,8 +21,8 @@ import { GptScene } from './scenes/gpt.scene';
         UserModule,
         SessionModule,
         MessageModule,
-        BalanceModule
+        BalanceModule,
     ],
-    providers: [TelegramService, StartScene, MenuScene, SetContextScene, GptScene],
+    providers: [TelegramService, StartScene, SettingsScene, SetContextScene, GptScene],
 })
 export class TelegramModule {}

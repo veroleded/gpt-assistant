@@ -28,16 +28,16 @@ export class TelegramService extends Telegraf<Context> {
             return await ctx.scene.enter('start');
         }
 
-        return await ctx.scene.enter('menu');
+        return await ctx.scene.enter('gpt_scene');
     }
 
-    @Command('balance')
+    @Command('account')
     async onBalance(@Ctx() ctx: Context) {
         const balance = await this.balanceService.getBalance();
         await ctx.reply(balance + ' рублей.');
     }
 
-    @Command('new')
+    @Command('deletecontext')
     async onContext(@Ctx() ctx: Context) {
         const { id } = ctx.message.from;
         await this.sessionService.create(id.toString());
@@ -45,9 +45,9 @@ export class TelegramService extends Telegraf<Context> {
         await ctx.scene.enter('menu');
     }
 
-    @Command('menu')
+    @Command('settings')
     async onMenu(@Ctx() ctx: Context) {
-        await ctx.scene.enter('menu');
+        await ctx.scene.enter('settings');
     }
 
     @On('text')
