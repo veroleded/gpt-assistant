@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { VoiceName } from '@prisma/client';
 import { createReadStream } from 'fs';
 import OpenAI from 'openai';
 import { FilesService } from 'src/libs/files/files.service';
@@ -28,10 +29,10 @@ export class ChatgptService {
         }
     }
 
-    async generateVoiceResponse(input: string, filename: string) {
+    async generateVoiceResponse(input: string, voice: VoiceName, filename: string) {
         const mp3 = await this.openai.audio.speech.create({
             model: 'tts-1',
-            voice: 'alloy',
+            voice,
             input,
         });
 

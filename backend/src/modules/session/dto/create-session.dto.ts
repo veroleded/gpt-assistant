@@ -1,3 +1,4 @@
+import { VoiceName } from '@prisma/client';
 import { IsBoolean, IsString } from 'class-validator';
 
 export class CreateSessionDto {
@@ -9,4 +10,10 @@ export class CreateSessionDto {
 
     @IsBoolean()
     voice?: boolean;
+
+    @IsBoolean()
+    onContext?: boolean;
+
+    @IsString()
+    voiceName?: VoiceName;
 }

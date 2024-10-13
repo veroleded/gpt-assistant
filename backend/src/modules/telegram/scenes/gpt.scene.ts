@@ -111,6 +111,7 @@ export class GptScene {
             } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
                     gptMessage.content,
+                    session.voiceName,
                     userId.toString(),
                 );
                 await ctx.deleteMessage(infoMessage.message_id);
@@ -165,6 +166,7 @@ export class GptScene {
             } else {
                 const audioFilepath = await this.chatgptService.generateVoiceResponse(
                     gptMessage.content,
+                    session.voiceName,
                     userId.toString(),
                 );
                 await ctx.deleteMessage(infoMessage.message_id);
