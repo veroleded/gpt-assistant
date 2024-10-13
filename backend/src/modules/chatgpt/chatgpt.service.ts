@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createReadStream, write } from 'fs';
+import { createReadStream } from 'fs';
 import OpenAI from 'openai';
 import { FilesService } from 'src/libs/files/files.service';
-
 
 @Injectable()
 export class ChatgptService {

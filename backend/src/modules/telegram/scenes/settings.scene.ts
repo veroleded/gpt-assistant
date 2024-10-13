@@ -1,20 +1,25 @@
-import { Action, Ctx, On, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Command, Ctx, Help, On, Scene, SceneEnter, Start } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/modules/session/session.service';
 import { Markup } from 'telegraf';
 import { textModels } from 'src/modules/chatgpt/models';
+import { helpText, settingsText, startText } from '../texts';
+import { BalanceService } from 'src/libs/balance/balance.service';
 
 @Scene('settings')
 export class SettingsScene {
-    constructor(private readonly sessionService: SessionService) {}
+    constructor(
+        private readonly sessionService: SessionService,
+        private readonly balanceService: BalanceService,
+    ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
         const userId = ctx.message.from.id.toString();
         const session = await this.sessionService.findCurrentUserSession(userId);
         const message =
-            'Настройки чата\n\n' +
-            'Используйте кнопку сохранить что бы перейти к диалогу.\n\n' +
+            settingsText +
+            '\n\n' +
             `Текущая модель: ${session.model}\n` +
             `Тип ответа: ${session.voice ? 'голос' : 'текст'}\n` +
             `Текущий контекст:\n ${session.context ?? 'не задан'}`;
@@ -31,9 +36,36 @@ export class SettingsScene {
                     Markup.button.callback('Выбрать модель', 'models'),
                 ],
                 [voiceButton],
-                [Markup.button.callback('Сохранить', 'save')],
             ]),
         );
+    }
+
+    @Start()
+    async onStart(@Ctx() ctx: SceneContext) {
+        await ctx.replyWithHTML(startText);
+    }
+
+    @Help()
+    async onHelp(@Ctx() ctx: SceneContext) {
+        await ctx.replyWithHTML(helpText);
+    }
+
+    @Command('settings')
+    async onSettings(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('settings');
+    }
+
+    @Command('deletecontext')
+    async onContext(@Ctx() ctx: SceneContext) {
+        const { id } = ctx.message.from;
+        await this.sessionService.create(id.toString());
+        await ctx.reply('Контекст отчищен!');
+    }
+
+    @Command('account')
+    async onBalance(@Ctx() ctx: SceneContext) {
+        const balance = await this.balanceService.getBalance();
+        await ctx.reply(balance + ' рублей.');
     }
 
     @Action('context')
@@ -62,8 +94,8 @@ export class SettingsScene {
                 'voice',
             );
             const message =
-                'Настройки чата\n\n' +
-                'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
+                settingsText +
+                '\n\n' +
                 `Текущая модель: ${session.model}\n` +
                 `Тип ответа: ${session.voice ? 'голос' : 'текст'}\n` +
                 `Текущий контекст:\n ${session.context ?? 'не задан'}`;
@@ -75,7 +107,6 @@ export class SettingsScene {
                         Markup.button.callback('Выбрать модель', 'models'),
                     ],
                     [voiceButton],
-                    [Markup.button.callback('Сохранить', 'save')],
                 ]),
             );
         } else {
@@ -97,8 +128,8 @@ export class SettingsScene {
                 'voice',
             );
             const message =
-                'Настройки чата\n\n' +
-                'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
+                settingsText +
+                '\n\n' +
                 `Текущая модель: ${newSession.model}\n` +
                 `Тип ответа: ${newSession.voice ? 'голос' : 'текст'}\n` +
                 `Текущий контекст:\n ${newSession.context ?? 'не задан'}`;
@@ -110,7 +141,6 @@ export class SettingsScene {
                         Markup.button.callback('Выбрать модель', 'models'),
                     ],
                     [voiceButton],
-                    [Markup.button.callback('Сохранить', 'save')],
                 ]),
             );
         } else {
@@ -118,47 +148,13 @@ export class SettingsScene {
         }
     }
 
-    @Action('voice')
-    async onVoice(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
-
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
-            const updatedSession = await this.sessionService.update(session.id, { voice: !session.voice });
-            const message =
-                'Настройки чата\n\n' +
-                'Используйте кнопку сохранить чтобы перейти к диалогу.\n\n' +
-                `Текущая модель: ${updatedSession.model}\n` +
-                `Тип ответа: ${updatedSession.voice ? 'голос' : 'текст'}\n` +
-                `Текущий контекст:\n ${updatedSession.context ?? 'не задан'}`;
-            const voiceButton = Markup.button.callback(
-                `${updatedSession.voice ? 'Отключить' : 'Включить'} голосовой ответ`,
-                'voice',
-            );
-
-            await ctx.editMessageText(
-                message,
-                Markup.inlineKeyboard([
-                    [
-                        Markup.button.callback('Задать контекст', 'context'),
-                        Markup.button.callback('Выбрать модель', 'models'),
-                    ],
-                    [voiceButton],
-                    [Markup.button.callback('Сохранить', 'save')],
-                ]),
-            );
-        }
-    }
-
-    @Action('save')
-    async save(@Ctx() ctx: SceneContext) {
-        await ctx.reply('Настройки сохранены! Для изменения используйте команду /menu');
+    @On('text')
+    async onText(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('gpt_scene');
     }
 
-    @On('text')
-    async onText(@Ctx() ctx: SceneContext) {
-        await ctx.reply('Для взаимодействия используйте кнпоки');
+    @On('voice')
+    async onVoice(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('gpt_scene');
     }
 }

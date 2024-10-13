@@ -1,22 +1,23 @@
-import { Action, Command, Ctx, Message, On, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Command, Ctx, Message, On, Scene, SceneEnter, Start } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { Markup } from 'telegraf';
 import { Role } from '@prisma/client';
 import { SessionService } from 'src/modules/session/session.service';
-import { UserService } from 'src/modules/user/user.service';
 import { MessageService } from 'src/modules/message/message.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { escapeSymbols } from 'src/utils/escapeSymbols';
 import { FilesService } from 'src/libs/files/files.service';
+import { helpText, startText } from '../texts';
+import { BalanceService } from 'src/libs/balance/balance.service';
 
 @Scene('gpt_scene')
 export class GptScene {
     constructor(
         private readonly sessionService: SessionService,
-        private readonly userService: UserService,
         private readonly messageService: MessageService,
         private readonly chatgptService: ChatgptService,
         private readonly filesService: FilesService,
+        private readonly balanceService: BalanceService,
     ) {}
 
     @SceneEnter()
@@ -25,7 +26,7 @@ export class GptScene {
             await ctx.reply('Задайте свой вопрос');
         } else {
             if ('text' in ctx.message) {
-                await this.onMessage(ctx, ctx.message.text);
+                await this.onTextMessage(ctx, ctx.message.text);
             }
 
             if ('voice' in ctx.message) {
@@ -38,13 +39,28 @@ export class GptScene {
     async onContext(@Ctx() ctx: SceneContext) {
         const { id } = ctx.message.from;
         await this.sessionService.create(id.toString());
-        await ctx.reply('История очищена!');
-        await ctx.scene.enter('gpt_scene');
+        await ctx.reply('Контекст отчищен!');
+    }
+
+    @Command('account')
+    async onBalance(@Ctx() ctx: SceneContext) {
+        const balance = await this.balanceService.getBalance();
+        await ctx.reply(balance + ' рублей.');
     }
 
     @Command('settings')
     async onMenu(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('settings');
+    }
+
+    @Start()
+    async onStart(@Ctx() ctx: SceneContext) {
+        await ctx.replyWithHTML(startText);
+    }
+
+    @Command('help')
+    async onHelp(@Ctx() ctx: SceneContext) {
+        await ctx.replyWithHTML(helpText);
     }
 
     @Action('text')
@@ -61,9 +77,9 @@ export class GptScene {
     }
 
     @On('text')
-    async onMessage(@Ctx() ctx: SceneContext, @Message('text') text: string) {
+    async onTextMessage(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
-            const infoMessage = await ctx.reply('<code>Подождите, идет генерация ответа...</code>');
+            const infoMessage = await ctx.replyWithHTML('<code>Подождите, идет генерация ответа...</code>');
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
@@ -106,14 +122,14 @@ export class GptScene {
             }
         } catch (error) {
             console.log(error);
-            await ctx.reply('Error');
+            await ctx.reply(error.message);
         }
     }
 
     @On('voice')
     async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
         try {
-            const infoMessage = await ctx.reply('<code>Подождите, идет генерация ответа...</code>');
+            const infoMessage = await ctx.replyWithHTML('<code>Подождите, идет генерация ответа...</code>');
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);

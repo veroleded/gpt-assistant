@@ -4,8 +4,6 @@ import { HttpModule } from '@nestjs/axios';
 import OpenAI from 'openai';
 import { ConfigService } from '@nestjs/config';
 import { FilesModule } from 'src/libs/files/files.module';
-;
-
 @Module({
     imports: [HttpModule, FilesModule],
     providers: [
