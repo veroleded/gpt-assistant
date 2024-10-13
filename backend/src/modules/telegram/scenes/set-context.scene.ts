@@ -5,8 +5,8 @@ import { UserService } from 'src/modules/user/user.service';
 import { FilesService } from 'src/libs/files/files.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 
-@Scene('set_context')
-export class SetContextScene {
+@Scene('set_role')
+export class SetRoleScene {
     constructor(
         private readonly sessionService: SessionService,
         private readonly userService: UserService,

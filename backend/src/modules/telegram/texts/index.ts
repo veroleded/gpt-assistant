@@ -68,3 +68,10 @@ export const helpText = [
     '',
     'По всем вопросам также можно написать администратору @i_abramov_gpt',
 ].join('\n');
+
+export const voiceSettingText = [
+    'В этом разделе вы можете включить режим голосового ответа и выбрать один из представленных голосов.',
+    '',
+    'Женские: nova | shimmer',
+    'Мужские: alloy | echo | fable | onyx',
+].join('\n');
