@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Command, Ctx, Help, On, Start, Update } from 'nestjs-telegraf';
 import { BalanceService } from 'src/libs/balance/balance.service';
@@ -13,6 +13,7 @@ interface Context extends SceneContext {}
 @Injectable()
 @Update()
 export class TelegramService extends Telegraf<Context> {
+    private readonly logger = new Logger(TelegramService.name);
     constructor(
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
@@ -24,26 +25,46 @@ export class TelegramService extends Telegraf<Context> {
 
     @Start()
     async onStart(@Ctx() ctx: Context) {
-        const { id, first_name, last_name, language_code, username } = ctx.message.from;
-        await this.userService.create({
-            id: id.toString(),
-            firstName: first_name,
-            lastName: last_name,
-            languageCode: language_code,
-            username,
-        });
-        const oldSession = await this.sessionService.findCurrentUserSession(id.toString());
-        if (!oldSession) {
+        try {
+            const { id, first_name, last_name, language_code, username } = ctx.message.from;
+            await this.userService.create({
+                id: id.toString(),
+                firstName: first_name,
+                lastName: last_name,
+                languageCode: language_code,
+                username,
+            });
+            const oldSession = await this.sessionService.findCurrentUserSession(id.toString());
+            if (!oldSession) {
+                await this.sessionService.create(id.toString());
+            }
             await this.sessionService.create(id.toString());
+            await ctx.replyWithHTML(startText);
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
-        await this.sessionService.create(id.toString());
-        await ctx.replyWithHTML(startText);
     }
 
     @Command('account')
     async onBalance(@Ctx() ctx: Context) {
-        const balance = await this.balanceService.getBalance();
-        await ctx.reply(balance + ' рублей.');
+        try {
+            const balance = await this.balanceService.getBalance();
+            await ctx.reply(balance + ' рублей.');
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Help()
@@ -53,9 +74,19 @@ export class TelegramService extends Telegraf<Context> {
 
     @Command('deletecontext')
     async onContext(@Ctx() ctx: Context) {
-        const { id } = ctx.message.from;
-        await this.sessionService.create(id.toString());
-        await ctx.reply('Контекст отчищен!');
+        try {
+            const { id } = ctx.message.from;
+            await this.sessionService.create(id.toString());
+            await ctx.reply('Контекст отчищен!');
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Command('settings')

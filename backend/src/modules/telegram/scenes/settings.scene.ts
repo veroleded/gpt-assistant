@@ -8,29 +8,44 @@ import { BalanceService } from 'src/libs/balance/balance.service';
 import { textModels } from 'src/modules/chatgpt/const/models';
 import { VoiceName } from '@prisma/client';
 import { createSettingText } from '../utils/create-setting-text';
+import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 
 @Scene('settings')
 export class SettingsScene {
+    private readonly logger = new Logger(SettingsScene.name);
+
     constructor(
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
+        private readonly configService: ConfigService,
     ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        const userId = ctx.message.from.id.toString();
-        const session = await this.sessionService.findCurrentUserSession(userId);
-        const message = createSettingText(session);
+        try {
+            const userId = ctx.message.from.id.toString();
+            const session = await this.sessionService.findCurrentUserSession(userId);
+            const message = createSettingText(session);
 
-        await ctx.reply(
-            message,
-            Markup.inlineKeyboard([
-                [Markup.button.callback('Описание роли', 'role')],
-                [Markup.button.callback('Выбор модели', 'models')],
-                [Markup.button.callback('Голосовые ответы', 'voice')],
-                [Markup.button.callback(`${session.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
-            ]),
-        );
+            await ctx.reply(
+                message,
+                Markup.inlineKeyboard([
+                    [Markup.button.callback('Описание роли', 'role')],
+                    [Markup.button.callback('Выбор модели', 'models')],
+                    [Markup.button.callback('Голосовые ответы', 'voice')],
+                    [Markup.button.callback(`${session.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
+                ]),
+            );
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Action('role')
@@ -40,156 +55,241 @@ export class SettingsScene {
 
     @Action('models')
     async setModel(@Ctx() ctx: SceneContext) {
-        const buttons = Object.entries(textModels).map(([key, value]) => Markup.button.callback(value, key));
-        await ctx.editMessageText(
-            'Выберете модель',
-            Markup.inlineKeyboard([buttons, [Markup.button.callback('Назад', 'back')]]),
-        );
+        try {
+            const buttons = Object.entries(textModels).map(([key, value]) => Markup.button.callback(value, key));
+            await ctx.editMessageText(
+                'Выберете модель',
+                Markup.inlineKeyboard([buttons, [Markup.button.callback('Назад', 'back')]]),
+            );
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Action('context')
     async setContext(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
 
-            const newSession = await this.sessionService.update(session.id, {
-                onContext: !session.onContext,
-            });
-            const message = createSettingText(newSession);
+                const newSession = await this.sessionService.update(session.id, {
+                    onContext: !session.onContext,
+                });
+                const message = createSettingText(newSession);
 
-            await ctx.editMessageText(
-                message,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback('Описание роли', 'role')],
-                    [Markup.button.callback('Выбор модели', 'models')],
-                    [Markup.button.callback('Голосовые ответы', 'voice')],
-                    [Markup.button.callback(`${newSession.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
-                ]),
-            );
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Описание роли', 'role')],
+                        [Markup.button.callback('Выбор модели', 'models')],
+                        [Markup.button.callback('Голосовые ответы', 'voice')],
+                        [
+                            Markup.button.callback(
+                                `${newSession.onContext ? '✅' : '❌'} Поддержка контекста`,
+                                'context',
+                            ),
+                        ],
+                    ]),
+                );
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
     @Action('voice')
     async setVoiceAction(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const { voice } = await this.sessionService.findCurrentUserSession(userId);
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const { voice } = await this.sessionService.findCurrentUserSession(userId);
 
-            const buttons = Object.entries(VoiceName).map(([key, value]) => Markup.button.callback(value, key));
-            await ctx.editMessageText(
-                voiceSettingText,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback(`${voice ? '✅' : '❌'} Голосовые ответы`, 'onVoice')],
-                    buttons,
-                    [Markup.button.callback('Назад', 'back')],
-                ]),
-            );
+                const buttons = Object.entries(VoiceName).map(([key, value]) => Markup.button.callback(value, key));
+                await ctx.editMessageText(
+                    voiceSettingText,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback(`${voice ? '✅' : '❌'} Голосовые ответы`, 'onVoice')],
+                        buttons,
+                        [Markup.button.callback('Назад', 'back')],
+                    ]),
+                );
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
     @Action('onVoice')
     async onVoiceSwap(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
 
-            const { voice } = await this.sessionService.update(session.id, { voice: !session.voice });
+                const { voice } = await this.sessionService.update(session.id, { voice: !session.voice });
 
-            const buttons = Object.entries(VoiceName).map(([key, value]) => Markup.button.callback(value, key));
-            await ctx.editMessageText(
-                voiceSettingText,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback(`${voice ? '✅' : '❌'} Голосовые ответы`, 'onVoice')],
-                    buttons,
-                    [Markup.button.callback('Назад', 'back')],
-                ]),
-            );
+                const buttons = Object.entries(VoiceName).map(([key, value]) => Markup.button.callback(value, key));
+                await ctx.editMessageText(
+                    voiceSettingText,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback(`${voice ? '✅' : '❌'} Голосовые ответы`, 'onVoice')],
+                        buttons,
+                        [Markup.button.callback('Назад', 'back')],
+                    ]),
+                );
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
     @Action(Object.keys(VoiceName))
     async setVoice(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
-            const voiceName = VoiceName[callbackQuery.data];
-            const newSession = await this.sessionService.update(session.id, {
-                voiceName,
-            });
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
+                const voiceName = VoiceName[callbackQuery.data];
+                const newSession = await this.sessionService.update(session.id, {
+                    voiceName,
+                });
 
-            const message = createSettingText(newSession);
+                const message = createSettingText(newSession);
 
-            await ctx.editMessageText(
-                message,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback('Описание роли', 'role')],
-                    [Markup.button.callback('Выбор модели', 'models')],
-                    [Markup.button.callback('Голосовые ответы', 'voice')],
-                    [Markup.button.callback(`${newSession.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
-                ]),
-            );
-        } else {
-            await ctx.reply('Произошла ошибка при выборе модели.');
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Описание роли', 'role')],
+                        [Markup.button.callback('Выбор модели', 'models')],
+                        [Markup.button.callback('Голосовые ответы', 'voice')],
+                        [
+                            Markup.button.callback(
+                                `${newSession.onContext ? '✅' : '❌'} Поддержка контекста`,
+                                'context',
+                            ),
+                        ],
+                    ]),
+                );
+            } else {
+                await ctx.reply('Произошла ошибка при выборе модели.');
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
     @Action('back')
     async back(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
-            const message = createSettingText(session);
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
+                const message = createSettingText(session);
 
-            await ctx.editMessageText(
-                message,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback('Описание роли', 'role')],
-                    [Markup.button.callback('Выбор модели', 'models')],
-                    [Markup.button.callback('Голосовые ответы', 'voice')],
-                    [Markup.button.callback(`${session.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
-                ]),
-            );
-        } else {
-            await ctx.reply('Произошла ошибка при выборе модели.');
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Описание роли', 'role')],
+                        [Markup.button.callback('Выбор модели', 'models')],
+                        [Markup.button.callback('Голосовые ответы', 'voice')],
+                        [Markup.button.callback(`${session.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
+                    ]),
+                );
+            } else {
+                await ctx.reply('Произошла ошибка при выборе модели.');
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
     @Action(Object.keys(textModels))
     async setModelAction(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
-            const newModel = textModels[callbackQuery.data];
-            const newSession = await this.sessionService.update(session.id, {
-                model: newModel,
-            });
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
+                const newModel = textModels[callbackQuery.data];
+                const newSession = await this.sessionService.update(session.id, {
+                    model: newModel,
+                });
 
-            const message = createSettingText(newSession);
+                const message = createSettingText(newSession);
 
-            await ctx.editMessageText(
-                message,
-                Markup.inlineKeyboard([
-                    [Markup.button.callback('Описание роли', 'role')],
-                    [Markup.button.callback('Выбор модели', 'models')],
-                    [Markup.button.callback('Голосовые ответы', 'voice')],
-                    [Markup.button.callback(`${newSession.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
-                ]),
-            );
-        } else {
-            await ctx.reply('Произошла ошибка при выборе модели.');
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Описание роли', 'role')],
+                        [Markup.button.callback('Выбор модели', 'models')],
+                        [Markup.button.callback('Голосовые ответы', 'voice')],
+                        [
+                            Markup.button.callback(
+                                `${newSession.onContext ? '✅' : '❌'} Поддержка контекста`,
+                                'context',
+                            ),
+                        ],
+                    ]),
+                );
+            } else {
+                await ctx.reply('Произошла ошибка при выборе модели.');
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
@@ -210,15 +310,35 @@ export class SettingsScene {
 
     @Command('deletecontext')
     async onContext(@Ctx() ctx: SceneContext) {
-        const { id } = ctx.message.from;
-        await this.sessionService.create(id.toString());
-        await ctx.reply('Контекст отчищен!');
+        try {
+            const { id } = ctx.message.from;
+            await this.sessionService.create(id.toString());
+            await ctx.reply('Контекст отчищен!');
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Command('account')
     async onBalance(@Ctx() ctx: SceneContext) {
-        const balance = await this.balanceService.getBalance();
-        await ctx.reply(balance + ' рублей.');
+        try {
+            const balance = await this.balanceService.getBalance();
+            await ctx.reply(balance + ' рублей.');
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @On('text')

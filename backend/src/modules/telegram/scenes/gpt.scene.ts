@@ -9,43 +9,77 @@ import { escapeSymbols } from 'src/utils/escapeSymbols';
 import { FilesService } from 'src/libs/files/files.service';
 import { helpText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
+import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 
 @Scene('gpt_scene')
 export class GptScene {
+    private readonly logger = new Logger(GptScene.name);
     constructor(
         private readonly sessionService: SessionService,
         private readonly messageService: MessageService,
         private readonly chatgptService: ChatgptService,
         private readonly filesService: FilesService,
         private readonly balanceService: BalanceService,
+        private readonly configService: ConfigService,
     ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        if (!ctx.message) {
-            await ctx.reply('Задайте свой вопрос');
-        } else {
-            if ('text' in ctx.message) {
-                await this.onTextMessage(ctx, ctx.message.text);
-            }
+        try {
+            if (!ctx.message) {
+                await ctx.reply('Задайте свой вопрос');
+            } else {
+                if ('text' in ctx.message) {
+                    await this.onTextMessage(ctx, ctx.message.text);
+                }
 
-            if ('voice' in ctx.message) {
-                await this.onVoice(ctx, ctx.message.voice);
+                if ('voice' in ctx.message) {
+                    await this.onVoice(ctx, ctx.message.voice);
+                }
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
             }
         }
     }
 
     @Command('deletecontext')
     async onContext(@Ctx() ctx: SceneContext) {
-        const { id } = ctx.message.from;
-        await this.sessionService.create(id.toString());
-        await ctx.reply('Контекст отчищен!');
+        try {
+            const { id } = ctx.message.from;
+            await this.sessionService.create(id.toString());
+            await ctx.reply('Контекст отчищен!');
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Command('account')
     async onBalance(@Ctx() ctx: SceneContext) {
-        const balance = await this.balanceService.getBalance();
-        await ctx.reply(balance + ' рублей.');
+        try {
+            const balance = await this.balanceService.getBalance();
+            await ctx.reply(balance + ' рублей.');
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
     }
 
     @Command('settings')
@@ -65,14 +99,24 @@ export class GptScene {
 
     @Action('text')
     async getTextTranscription(@Ctx() ctx: SceneContext) {
-        const callbackQuery = ctx.callbackQuery;
+        try {
+            const callbackQuery = ctx.callbackQuery;
 
-        if ('data' in callbackQuery) {
-            const userId = callbackQuery.from.id.toString();
-            const session = await this.sessionService.findCurrentUserSession(userId);
-            const messages = await this.messageService.findAllSessionMessages(session.id);
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
+                const messages = await this.messageService.findAllSessionMessages(session.id);
 
-            await ctx.replyWithMarkdownV2(escapeSymbols(messages[messages.length - 1].content));
+                await ctx.replyWithMarkdownV2(escapeSymbols(messages[messages.length - 1].content));
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
@@ -122,8 +166,13 @@ export class GptScene {
                 await this.filesService.removeFile(audioFilepath);
             }
         } catch (error) {
-            console.log(error);
-            await ctx.reply(error.message);
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 
@@ -177,8 +226,13 @@ export class GptScene {
                 await this.filesService.removeFile(audioFilepath);
             }
         } catch (error) {
-            console.log(error);
-            await ctx.reply('Error');
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
         }
     }
 }
