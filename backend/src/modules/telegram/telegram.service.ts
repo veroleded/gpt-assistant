@@ -89,6 +89,11 @@ export class TelegramService extends Telegraf<Context> {
         }
     }
 
+    @Command('image')
+    async onImage(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('image');
+    }
+
     @Command('settings')
     async onSettings(@Ctx() ctx: Context) {
         await ctx.scene.enter('settings');
