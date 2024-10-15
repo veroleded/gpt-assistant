@@ -131,9 +131,6 @@ export class GptScene {
             const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
 
-            if (messages.length >= 40) {
-                return ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
-            }
 
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
@@ -188,11 +185,6 @@ export class GptScene {
 
             const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
-
-            if (messages.length >= 20) {
-                await ctx.reply('Сообщения в этом чате закончились, используйте команду /new что бы начать новый');
-                return;
-            }
 
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
