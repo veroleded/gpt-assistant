@@ -146,8 +146,10 @@ export class GptScene {
             const response = await this.chatgptService.generateTextResponse(messages);
             const gptMessage = { role: Role.assistant, content: response.content };
 
-            await this.messageService.create({ ...newMessage, sessionId: session.id });
-            await this.messageService.create({ ...gptMessage, sessionId: session.id });
+            if (session.onContext) {
+                await this.messageService.create({ ...newMessage, sessionId: session.id });
+                await this.messageService.create({ ...gptMessage, sessionId: session.id });
+            }
 
             if (!session.voice) {
                 await ctx.deleteMessage(infoMessage.message_id);
@@ -206,8 +208,10 @@ export class GptScene {
             const response = await this.chatgptService.generateTextResponse(messages);
             const gptMessage = { role: Role.assistant, content: response.content };
 
-            await this.messageService.create({ ...newMessage, sessionId: session.id });
-            await this.messageService.create({ ...gptMessage, sessionId: session.id });
+            if (session.onContext) {
+                await this.messageService.create({ ...newMessage, sessionId: session.id });
+                await this.messageService.create({ ...gptMessage, sessionId: session.id });
+            }
 
             if (!session.voice) {
                 await ctx.deleteMessage(infoMessage.message_id);
