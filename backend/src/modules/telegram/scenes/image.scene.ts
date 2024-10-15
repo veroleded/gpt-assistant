@@ -8,9 +8,9 @@ import { Logger } from '@nestjs/common';
 import { helpText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
-@Scene('set_role')
-export class SetRoleScene {
-    private readonly logger = new Logger(SetRoleScene.name);
+@Scene('image')
+export class ImageScene {
+    private readonly logger = new Logger(ImageScene.name);
     constructor(
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
@@ -22,8 +22,8 @@ export class SetRoleScene {
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
         ctx.reply(
-            'Опишите текстом или голосовым сообщением как должен вести себя бот. Пример описания:\n' +
-                'Отвечай как будто ты великий математик.',
+            'Опишите изображение текстом или голосовым сообщением. Пример описания:\n' +
+                'Медведь как космический командир.',
         );
     }
 
@@ -35,11 +35,6 @@ export class SetRoleScene {
     @Help()
     async onHelp(@Ctx() ctx: SceneContext) {
         await ctx.replyWithHTML(helpText);
-    }
-
-    @Command('image')
-    async onImage(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('image');
     }
 
     @Command('settings')
@@ -83,11 +78,13 @@ export class SetRoleScene {
     @On('text')
     async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
+            const infoMessage = await ctx.replyWithHTML('<code>Генерирую...</code>');
             const { id } = ctx.message.from;
             const session = await this.sessionService.findCurrentUserSession(id.toString());
-            await this.sessionService.update(session.id, { context: text });
+            const image = await this.chatgptService.generateImage(text, session.imageModel as 'dall-e-2' | 'dall-e-3');
 
-            await ctx.reply('Сохранено!');
+            await ctx.deleteMessage(infoMessage.message_id)
+            await ctx.replyWithPhoto(image);
             await ctx.scene.leave();
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
@@ -103,14 +100,19 @@ export class SetRoleScene {
     @On('voice')
     async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
         try {
+            const infoMessage = await ctx.replyWithHTML('<code>Генерирую...</code>');
             const { id } = ctx.message.from;
             const fileLink = await ctx.telegram.getFileLink(voice.file_id);
             const filepath = await this.filesService.downloadFile(fileLink.href, id.toString(), 'ogg');
             const transcription = await this.chatgptService.transcription(filepath);
             const session = await this.sessionService.findCurrentUserSession(id.toString());
-            await this.sessionService.update(session.id, { context: transcription });
+            const image = await this.chatgptService.generateImage(
+                transcription,
+                session.imageModel as 'dall-e-2' | 'dall-e-3',
+            );
 
-            await ctx.reply('Сохранено!');
+            await ctx.deleteMessage(infoMessage.message_id);
+            await ctx.replyWithPhoto(image);
             await ctx.scene.leave();
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';

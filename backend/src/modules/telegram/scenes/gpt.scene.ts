@@ -66,6 +66,11 @@ export class GptScene {
         }
     }
 
+    @Command('image')
+    async onImage(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('image');
+    }
+
     @Command('account')
     async onBalance(@Ctx() ctx: SceneContext) {
         try {

@@ -16,17 +16,21 @@ export class ChatgptService {
         messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
         model: string = 'gpt-3.5-turbo',
     ): Promise<OpenAI.Chat.Completions.ChatCompletionMessage> {
-        try {
-            const chatCompletion = await this.openai.chat.completions.create({
-                model,
-                messages,
-            });
+        const chatCompletion = await this.openai.chat.completions.create({
+            model,
+            messages,
+        });
 
-            return chatCompletion.choices[0].message;
-        } catch (error) {
-            this.logger.error(error);
-            throw new Error(error);
-        }
+        return chatCompletion.choices[0].message;
+    }
+
+    async generateImage(prompt: string, model: 'dall-e-2' | 'dall-e-3') {
+        const image = await this.openai.images.generate({
+            prompt,
+            model,
+        });
+
+        return image.data[0].url;
     }
 
     async generateVoiceResponse(input: string, voice: VoiceName, filename: string) {

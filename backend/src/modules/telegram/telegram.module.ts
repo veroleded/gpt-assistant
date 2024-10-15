@@ -11,6 +11,7 @@ import { BalanceModule } from 'src/libs/balance/balance.module';
 import { SettingsScene } from './scenes/settings.scene';
 import { SetRoleScene } from './scenes/set-context.scene';
 import { GptScene } from './scenes/gpt.scene';
+import { ImageScene } from './scenes/image.scene';
 
 @Module({
     imports: [
@@ -22,6 +23,6 @@ import { GptScene } from './scenes/gpt.scene';
         MessageModule,
         BalanceModule,
     ],
-    providers: [TelegramService, SettingsScene, SetRoleScene, GptScene],
+    providers: [TelegramService, SettingsScene, SetRoleScene, GptScene, ImageScene],
 })
 export class TelegramModule {}

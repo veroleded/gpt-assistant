@@ -341,6 +341,11 @@ export class SettingsScene {
         }
     }
 
+    @Command('image')
+    async onImage(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('image');
+    }
+
     @On('text')
     async onText(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('gpt_scene');
