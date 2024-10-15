@@ -8,6 +8,8 @@ import { Logger } from '@nestjs/common';
 import { helpText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
+type ImageSize = '256x256' | '512x512' | '1024x1024' | '1792x1024' | '1024x1792';
+
 @Scene('image')
 export class ImageScene {
     private readonly logger = new Logger(ImageScene.name);
@@ -81,9 +83,13 @@ export class ImageScene {
             const infoMessage = await ctx.replyWithHTML('<code>Генерирую...</code>');
             const { id } = ctx.message.from;
             const session = await this.sessionService.findCurrentUserSession(id.toString());
-            const image = await this.chatgptService.generateImage(text, session.imageModel as 'dall-e-2' | 'dall-e-3');
+            const image = await this.chatgptService.generateImage(
+                text,
+                session.imageSize as ImageSize,
+                session.imageStyle as 'vivid' | 'natural',
+            );
 
-            await ctx.deleteMessage(infoMessage.message_id)
+            await ctx.deleteMessage(infoMessage.message_id);
             await ctx.replyWithPhoto(image);
             await ctx.scene.leave();
         } catch (error) {
@@ -108,7 +114,8 @@ export class ImageScene {
             const session = await this.sessionService.findCurrentUserSession(id.toString());
             const image = await this.chatgptService.generateImage(
                 transcription,
-                session.imageModel as 'dall-e-2' | 'dall-e-3',
+                session.imageSize as ImageSize,
+                session.imageStyle as 'vivid' | 'natural',
             );
 
             await ctx.deleteMessage(infoMessage.message_id);

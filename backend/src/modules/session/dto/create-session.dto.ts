@@ -18,5 +18,8 @@ export class CreateSessionDto {
     voiceName?: VoiceName;
 
     @IsString()
-    imageModel?: string;
+    imageStyle?: string;
+
+    @IsString()
+    imageSize?: string;
 }

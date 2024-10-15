@@ -24,10 +24,16 @@ export class ChatgptService {
         return chatCompletion.choices[0].message;
     }
 
-    async generateImage(prompt: string, model: 'dall-e-2' | 'dall-e-3') {
+    async generateImage(
+        prompt: string,
+        size: OpenAI.Images.ImageGenerateParams['size'],
+        style?: OpenAI.Images.ImageGenerateParams['style'],
+    ) {
         const image = await this.openai.images.generate({
             prompt,
-            model,
+            size,
+            model: 'dall-e-3',
+            ...(style && { style: style }),
         });
 
         return image.data[0].url;

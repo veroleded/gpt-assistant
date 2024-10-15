@@ -5,7 +5,7 @@ import { Markup } from 'telegraf';
 
 import { helpText, startText, voiceSettingText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
-import { textModels } from 'src/modules/chatgpt/const/models';
+import { imageSizes, textModels } from 'src/modules/chatgpt/const/models';
 import { VoiceName } from '@prisma/client';
 import { createSettingText } from '../utils/create-setting-text';
 import { ConfigService } from '@nestjs/config';
@@ -19,7 +19,7 @@ export class SettingsScene {
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
         private readonly configService: ConfigService,
-    ) {}
+    ) { }
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
@@ -35,6 +35,7 @@ export class SettingsScene {
                     [Markup.button.callback('Выбор модели', 'models')],
                     [Markup.button.callback('Голосовые ответы', 'voice')],
                     [Markup.button.callback(`${session.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
+                    [Markup.button.callback('Изображения', 'image')],
                 ]),
             );
         } catch (error) {
@@ -205,6 +206,203 @@ export class SettingsScene {
                 );
             } else {
                 await ctx.reply('Произошла ошибка при выборе модели.');
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
+    }
+
+    @Action('image')
+    async onImageButton(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
+
+        try {
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
+
+                const message =
+                    'Настройка генерации изображений\n\n' +
+                    `Текущий размер: ${session.imageSize}\n` +
+                    `Текущий стиль: ${session.imageStyle ?? 'нет'}\n`;
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Выбрать размер', 'imageSize')],
+                        [Markup.button.callback('Выбрать стиль', 'imageStyle')],
+                        [Markup.button.callback('Назад', 'back')],
+                    ]),
+                );
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
+    }
+
+    @Action('imageSize')
+    async onImageSize(@Ctx() ctx: SceneContext) {
+        try {
+            const callbackQuery = ctx.callbackQuery;
+
+            if ('data' in callbackQuery) {
+
+                const buttons = Object.values(imageSizes).map((size) => [Markup.button.callback(size, size)]);
+
+                buttons.push([Markup.button.callback('Назад', 'imageBack')]);
+
+                await ctx.editMessageText('Выберите размер', Markup.inlineKeyboard(buttons));
+
+            }
+
+
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
+    }
+
+    @Action(Object.values(imageSizes))
+    async setImageSize(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
+
+        try {
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const prevSession = await this.sessionService.findCurrentUserSession(userId);
+                const size = callbackQuery.data;
+
+                const session = await this.sessionService.update(prevSession.id, { imageSize: size });
+
+                const message =
+                    'Настройка генерации изображений\n\n' +
+                    `Текущий размер: ${session.imageSize}\n` +
+                    `Текущий стиль: ${session.imageStyle ?? 'нет'}\n`;
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Выбрать размер', 'imageSize')],
+                        [Markup.button.callback('Выбрать стиль', 'imageStyle')],
+                        [Markup.button.callback('Назад', 'back')],
+                    ]),
+                );
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
+    }
+
+    @Action(['vivid', 'natural', 'noStyle'])
+    async setImageStyle(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
+
+        try {
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const prevSession = await this.sessionService.findCurrentUserSession(userId);
+                const style = callbackQuery.data;
+
+                const session = await this.sessionService.update(prevSession.id, { imageStyle: (style === 'noStyle' ? null : style) });
+
+                const message =
+                    'Настройка генерации изображений\n\n' +
+                    `Текущий размер: ${session.imageSize}\n` +
+                    `Текущий стиль: ${session.imageStyle ?? 'нет'}\n`;
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Выбрать размер', 'imageSize')],
+                        [Markup.button.callback('Выбрать стиль', 'imageStyle')],
+                    ]),
+                );
+            }
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
+    }
+
+    @Action('imageStyle')
+    async onImageStyle(@Ctx() ctx: SceneContext) {
+        try {
+            const callbackQuery = ctx.callbackQuery;
+
+            if ('data' in callbackQuery) {
+
+                const message = 'Выберите стиль\n\n' +
+                    'Vivid: гиперреалистичные и драматичные изображения\n' +
+                    'Natural: более естественные, менее гиперреалистичные изображения';
+
+                await ctx.editMessageText(message, Markup.inlineKeyboard([
+                    [Markup.button.callback('vivid', 'vivid')],
+                    [Markup.button.callback('natural', 'natural')],
+                    [Markup.button.callback('нет стиля', 'noStyle')],
+                    [Markup.button.callback('Назад', 'imageBack')]
+                ]));
+
+            }
+
+
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply('Что-то пошло нет так');
+            }
+        }
+    }
+
+
+    @Action('imageBack')
+
+    async imageBack(@Ctx() ctx: SceneContext) {
+        const callbackQuery = ctx.callbackQuery;
+
+        try {
+            if ('data' in callbackQuery) {
+                const userId = callbackQuery.from.id.toString();
+                const session = await this.sessionService.findCurrentUserSession(userId);
+
+                const message =
+                    'Настройка генерации изображений\n\n' +
+                    `Текущий размер: ${session.imageSize}\n` +
+                    `Текущий стиль: ${session.imageStyle ?? 'нет'}\n`;
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('Выбрать размер', 'imageSize')],
+                        [Markup.button.callback('Выбрать стиль', 'imageStyle')],
+                    ]),
+                );
             }
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';

@@ -10,6 +10,12 @@ export const imageModels = {
     dallE3: 'dall-e-3',
 } as const;
 
+export const imageSizes = {
+    square: '1024x1024',
+    horizontal: '1792x1024',
+    vertical: '1024x1792',
+} as const;
+
 export const voiceModels = {
     whisper1: 'whisper-1',
     tts1: 'tts-1',
