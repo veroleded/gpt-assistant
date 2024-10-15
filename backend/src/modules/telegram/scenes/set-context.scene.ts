@@ -1,7 +1,6 @@
 import { Command, Ctx, Help, Message, On, Scene, SceneEnter, Start } from 'nestjs-telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/modules/session/session.service';
-import { UserService } from 'src/modules/user/user.service';
 import { FilesService } from 'src/libs/files/files.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { ConfigService } from '@nestjs/config';
