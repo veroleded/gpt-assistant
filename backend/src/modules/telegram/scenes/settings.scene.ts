@@ -19,7 +19,7 @@ export class SettingsScene {
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
@@ -257,16 +257,12 @@ export class SettingsScene {
             const callbackQuery = ctx.callbackQuery;
 
             if ('data' in callbackQuery) {
-
                 const buttons = Object.values(imageSizes).map((size) => [Markup.button.callback(size, size)]);
 
                 buttons.push([Markup.button.callback('Назад', 'imageBack')]);
 
                 await ctx.editMessageText('Выберите размер', Markup.inlineKeyboard(buttons));
-
             }
-
-
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
             if (isDev) {
@@ -324,7 +320,9 @@ export class SettingsScene {
                 const prevSession = await this.sessionService.findCurrentUserSession(userId);
                 const style = callbackQuery.data;
 
-                const session = await this.sessionService.update(prevSession.id, { imageStyle: (style === 'noStyle' ? null : style) });
+                const session = await this.sessionService.update(prevSession.id, {
+                    imageStyle: style === 'noStyle' ? null : style,
+                });
 
                 const message =
                     'Настройка генерации изображений\n\n' +
@@ -355,21 +353,21 @@ export class SettingsScene {
             const callbackQuery = ctx.callbackQuery;
 
             if ('data' in callbackQuery) {
-
-                const message = 'Выберите стиль\n\n' +
+                const message =
+                    'Выберите стиль\n\n' +
                     'Vivid: гиперреалистичные и драматичные изображения\n' +
                     'Natural: более естественные, менее гиперреалистичные изображения';
 
-                await ctx.editMessageText(message, Markup.inlineKeyboard([
-                    [Markup.button.callback('vivid', 'vivid')],
-                    [Markup.button.callback('natural', 'natural')],
-                    [Markup.button.callback('нет стиля', 'noStyle')],
-                    [Markup.button.callback('Назад', 'imageBack')]
-                ]));
-
+                await ctx.editMessageText(
+                    message,
+                    Markup.inlineKeyboard([
+                        [Markup.button.callback('vivid', 'vivid')],
+                        [Markup.button.callback('natural', 'natural')],
+                        [Markup.button.callback('нет стиля', 'noStyle')],
+                        [Markup.button.callback('Назад', 'imageBack')],
+                    ]),
+                );
             }
-
-
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
             if (isDev) {
@@ -381,9 +379,7 @@ export class SettingsScene {
         }
     }
 
-
     @Action('imageBack')
-
     async imageBack(@Ctx() ctx: SceneContext) {
         const callbackQuery = ctx.callbackQuery;
 

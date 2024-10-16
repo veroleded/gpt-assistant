@@ -136,7 +136,6 @@ export class GptScene {
             const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
 
-
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
             }
