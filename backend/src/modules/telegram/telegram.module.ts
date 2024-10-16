@@ -8,10 +8,7 @@ import { SessionModule } from 'src/modules/session/session.module';
 import { MessageModule } from 'src/modules/message/message.module';
 import { FilesModule } from 'src/libs/files/files.module';
 import { BalanceModule } from 'src/libs/balance/balance.module';
-import { SettingsScene } from './scenes/settings.scene';
-import { SetRoleScene } from './scenes/set-context.scene';
-import { GptScene } from './scenes/gpt.scene';
-import { ImageScene } from './scenes/image.scene';
+import { SCENES } from './scenes';
 
 @Module({
     imports: [
@@ -23,6 +20,6 @@ import { ImageScene } from './scenes/image.scene';
         MessageModule,
         BalanceModule,
     ],
-    providers: [TelegramService, SettingsScene, SetRoleScene, GptScene, ImageScene],
+    providers: [TelegramService, ...SCENES],
 })
 export class TelegramModule {}
