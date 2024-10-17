@@ -22,7 +22,7 @@ export class GptScene {
         private readonly filesService: FilesService,
         private readonly balanceService: BalanceService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
@@ -71,10 +71,9 @@ export class GptScene {
         await ctx.scene.enter('image');
     }
 
-    @Command('new')
+    @Command('newchat')
     async onNew(@Ctx() ctx: SceneContext) {
         try {
-
             const userId = ctx.message.from.id;
 
             await this.sessionService.create(userId.toString());
@@ -93,12 +92,12 @@ export class GptScene {
 
     @Command('chats')
     async onChats(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('select_chat')
+        await ctx.scene.enter('select_chat');
     }
 
     @Command('role')
     async onRole(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_role')
+        await ctx.scene.enter('set_role');
     }
 
     @Command('account')
@@ -170,7 +169,9 @@ export class GptScene {
                 await this.sessionService.update(session.id, { name });
             }
 
-            const symstemMessage = session.assistantRole ? { role: Role.system, content: session.assistantRole } : undefined;
+            const symstemMessage = session.assistantRole
+                ? { role: Role.system, content: session.assistantRole }
+                : undefined;
 
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
@@ -234,12 +235,13 @@ export class GptScene {
                 await this.sessionService.update(session.id, { name });
             }
 
-            const symstemMessage = session.assistantRole ? { role: Role.system, content: session.assistantRole } : undefined;
+            const symstemMessage = session.assistantRole
+                ? { role: Role.system, content: session.assistantRole }
+                : undefined;
 
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
             }
-
 
             const newMessage = { role: Role.user, content: transcription };
             messages.push(newMessage);

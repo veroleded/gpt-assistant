@@ -19,7 +19,7 @@ export class ImageScene {
         private readonly filesService: FilesService,
         private readonly chatgptService: ChatgptService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
@@ -41,10 +41,9 @@ export class ImageScene {
         await ctx.scene.enter('settings');
     }
 
-    @Command('new')
+    @Command('newchat')
     async onNew(@Ctx() ctx: SceneContext) {
         try {
-
             const userId = ctx.message.from.id;
 
             await this.sessionService.create(userId.toString());
@@ -59,17 +58,16 @@ export class ImageScene {
                 await ctx.reply(errorText);
             }
         }
-
     }
 
     @Command('chats')
     async onChats(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('select_chat')
+        await ctx.scene.enter('select_chat');
     }
 
     @Command('role')
     async onRole(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_role')
+        await ctx.scene.enter('set_role');
     }
 
     @Command('deletecontext')

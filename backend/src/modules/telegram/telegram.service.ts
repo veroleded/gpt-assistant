@@ -99,10 +99,9 @@ export class TelegramService extends Telegraf<SceneContext> {
         await ctx.scene.enter('settings');
     }
 
-    @Command('new')
+    @Command('newchat')
     async onNew(@Ctx() ctx: SceneContext) {
         try {
-
             const userId = ctx.message.from.id;
 
             await this.sessionService.create(userId.toString());
@@ -117,17 +116,16 @@ export class TelegramService extends Telegraf<SceneContext> {
                 await ctx.reply(errorText);
             }
         }
-
     }
 
     @Command('chats')
     async onChats(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('select_chat')
+        await ctx.scene.enter('select_chat');
     }
 
     @Command('role')
     async onRole(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_role')
+        await ctx.scene.enter('set_role');
     }
 
     @On('text')

@@ -522,12 +522,12 @@ export class SettingsScene {
 
     @Command('role')
     async onRole(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_role')
+        await ctx.scene.enter('set_role');
     }
 
     @Command('chats')
     async onChats(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('select_chat')
+        await ctx.scene.enter('select_chat');
     }
 
     @Command('account')
@@ -546,10 +546,9 @@ export class SettingsScene {
         }
     }
 
-    @Command('new')
+    @Command('newchat')
     async onNew(@Ctx() ctx: SceneContext) {
         try {
-
             const userId = ctx.message.from.id;
 
             await this.sessionService.create(userId.toString());
@@ -564,7 +563,6 @@ export class SettingsScene {
                 await ctx.reply(errorText);
             }
         }
-
     }
 
     @Command('image')

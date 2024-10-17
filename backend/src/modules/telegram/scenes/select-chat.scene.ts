@@ -15,13 +15,13 @@ export class SelectChatScene {
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
         private readonly configService: ConfigService,
-    ) { }
+    ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
         ctx.reply(
             'Опишите изображение текстом или голосовым сообщением. Пример описания:\n' +
-            'Медведь как космический командир.',
+                'Медведь как космический командир.',
         );
     }
 
@@ -42,7 +42,7 @@ export class SelectChatScene {
 
     @Command('chats')
     async onChats(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('select_chat')
+        await ctx.scene.enter('select_chat');
     }
 
     @Command('deletecontext')
@@ -79,10 +79,9 @@ export class SelectChatScene {
         }
     }
 
-    @Command('new')
+    @Command('newchat')
     async onNew(@Ctx() ctx: SceneContext) {
         try {
-
             const userId = ctx.message.from.id;
 
             await this.sessionService.create(userId.toString());
@@ -101,7 +100,7 @@ export class SelectChatScene {
 
     @Command('role')
     async onRole(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('set_role')
+        await ctx.scene.enter('set_role');
     }
 
     @On('text')
