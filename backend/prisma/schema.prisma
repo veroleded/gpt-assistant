@@ -19,18 +19,21 @@ model User {
 }
 
 model Session {
-  id         String    @id @default(uuid())
-  model      String    @default("gpt-3.5-turbo")
-  context    String?
-  voice      Boolean   @default(false)
-  voiceName  VoiceName @default(alloy) @map("voice_name")
-  onContext  Boolean   @default(true)
-  imageSize  String    @default("1024x1024") @map("image_size")
-  imageStyle String?   @map("image_style")
-  messages   Message[]
-  user       User[]
-  createAt   DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  name          String?
+  model         String    @default("gpt-4o")
+  assistantRole String?   @map("assistant_role")
+  voice         Boolean   @default(false)
+  voiceName     VoiceName @default(alloy) @map("voice_name")
+  onContext     Boolean   @default(true)
+  imageSize     String    @default("1024x1024") @map("image_size")
+  imageStyle    String?   @map("image_style")
+  current       Boolean   @default(true)
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String    @unique @map("user_id")
+  messages      Message[]
+  createAt      DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 }
 
 model Message {

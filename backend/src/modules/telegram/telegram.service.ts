@@ -9,7 +9,7 @@ import { SceneContext } from 'telegraf/typings/scenes';
 import { helpText, startText } from './texts';
 import { UserService } from '../user/user.service';
 
-interface Context extends SceneContext {}
+interface Context extends SceneContext { }
 @Injectable()
 @Update()
 export class TelegramService extends Telegraf<Context> {
@@ -38,7 +38,7 @@ export class TelegramService extends Telegraf<Context> {
             if (!oldSession) {
                 await this.sessionService.create(id.toString());
             }
-            await this.sessionService.create(id.toString());
+
             await ctx.replyWithHTML(startText);
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
@@ -76,7 +76,8 @@ export class TelegramService extends Telegraf<Context> {
     async onContext(@Ctx() ctx: Context) {
         try {
             const { id } = ctx.message.from;
-            await this.sessionService.create(id.toString());
+            const session = await this.sessionService.findCurrentUserSession(id.toString());
+            await this.sessionService.removeContext(session.id);
             await ctx.reply('Контекст отчищен!');
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';

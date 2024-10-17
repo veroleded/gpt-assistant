@@ -22,7 +22,7 @@ export class GptScene {
         private readonly filesService: FilesService,
         private readonly balanceService: BalanceService,
         private readonly configService: ConfigService,
-    ) {}
+    ) { }
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
@@ -132,9 +132,15 @@ export class GptScene {
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
-
-            const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
+
+            if (messages.length === 0) {
+                const name = text.split(/[.?!]/)[0];
+
+                await this.sessionService.update(session.id, { name });
+            }
+
+            const symstemMessage = session.assistantRole ? { role: Role.system, content: session.assistantRole } : undefined;
 
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
@@ -186,17 +192,24 @@ export class GptScene {
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
-
-            const symstemMessage = session.context ? { role: Role.system, content: session.context } : undefined;
             const messages = await this.messageService.findAllSessionMessages(session.id);
+
+            const fileLink = await ctx.telegram.getFileLink(voice.file_id);
+            const filepath = await this.filesService.downloadFile(fileLink.href, userId.toString(), 'ogg');
+            const transcription = await this.chatgptService.transcription(filepath);
+
+            if (messages.length === 0) {
+                const name = transcription.split(/[.?!]/)[0];
+
+                await this.sessionService.update(session.id, { name });
+            }
+
+            const symstemMessage = session.assistantRole ? { role: Role.system, content: session.assistantRole } : undefined;
 
             if (symstemMessage) {
                 messages.unshift(symstemMessage);
             }
 
-            const fileLink = await ctx.telegram.getFileLink(voice.file_id);
-            const filepath = await this.filesService.downloadFile(fileLink.href, userId.toString(), 'ogg');
-            const transcription = await this.chatgptService.transcription(filepath);
 
             const newMessage = { role: Role.user, content: transcription };
             messages.push(newMessage);

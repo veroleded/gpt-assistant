@@ -51,7 +51,8 @@ export class SetRoleScene {
     async onContext(@Ctx() ctx: SceneContext) {
         try {
             const { id } = ctx.message.from;
-            await this.sessionService.create(id.toString());
+            const session = await this.sessionService.findCurrentUserSession(id.toString());
+            await this.sessionService.removeContext(session.id);
             await ctx.reply('Контекст отчищен!');
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
@@ -85,7 +86,7 @@ export class SetRoleScene {
         try {
             const { id } = ctx.message.from;
             const session = await this.sessionService.findCurrentUserSession(id.toString());
-            await this.sessionService.update(session.id, { context: text });
+            await this.sessionService.update(session.id, { assistantRole: text });
 
             await ctx.reply('Сохранено!');
             await ctx.scene.leave();
@@ -108,7 +109,7 @@ export class SetRoleScene {
             const filepath = await this.filesService.downloadFile(fileLink.href, id.toString(), 'ogg');
             const transcription = await this.chatgptService.transcription(filepath);
             const session = await this.sessionService.findCurrentUserSession(id.toString());
-            await this.sessionService.update(session.id, { context: transcription });
+            await this.sessionService.update(session.id, { assistantRole: transcription });
 
             await ctx.reply('Сохранено!');
             await ctx.scene.leave();

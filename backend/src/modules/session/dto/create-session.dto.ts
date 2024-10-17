@@ -3,10 +3,13 @@ import { IsBoolean, IsString } from 'class-validator';
 
 export class CreateSessionDto {
     @IsString()
+    name?: string;
+
+    @IsString()
     model?: string;
 
     @IsString()
-    context?: string;
+    assistantRole?: string;
 
     @IsBoolean()
     voice?: boolean;

@@ -506,7 +506,8 @@ export class SettingsScene {
     async onContext(@Ctx() ctx: SceneContext) {
         try {
             const { id } = ctx.message.from;
-            await this.sessionService.create(id.toString());
+            const session = await this.sessionService.findCurrentUserSession(id.toString());
+            await this.sessionService.removeContext(session.id);
             await ctx.reply('Контекст отчищен!');
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
