@@ -5,7 +5,7 @@ import { FilesService } from 'src/libs/files/files.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { helpText, newText, startText } from '../texts';
+import { answerGenerationText, errorText, helpText, iamgeText, newText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
 type ImageSize = '256x256' | '512x512' | '1024x1024' | '1792x1024' | '1024x1792';
@@ -23,10 +23,7 @@ export class ImageScene {
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        ctx.reply(
-            'Опишите изображение текстом или голосовым сообщением. Пример описания:\n' +
-                'Медведь как космический командир.',
-        );
+        ctx.reply(iamgeText)
     }
 
     @Start()
@@ -67,7 +64,7 @@ export class ImageScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -83,7 +80,7 @@ export class ImageScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -91,7 +88,7 @@ export class ImageScene {
     @On('text')
     async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
-            const infoMessage = await ctx.replyWithHTML('<code>Генерирую...</code>');
+            const infoMessage = await ctx.replyWithHTML(answerGenerationText);
             const { id } = ctx.message.from;
             const session = await this.sessionService.findCurrentUserSession(id.toString());
             const image = await this.chatgptService.generateImage(
@@ -109,7 +106,7 @@ export class ImageScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -117,7 +114,7 @@ export class ImageScene {
     @On('voice')
     async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
         try {
-            const infoMessage = await ctx.replyWithHTML('<code>Генерирую...</code>');
+            const infoMessage = await ctx.replyWithHTML(answerGenerationText);
             const { id } = ctx.message.from;
             const fileLink = await ctx.telegram.getFileLink(voice.file_id);
             const filepath = await this.filesService.downloadFile(fileLink.href, id.toString(), 'ogg');
@@ -138,7 +135,7 @@ export class ImageScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }

@@ -5,7 +5,7 @@ import { FilesService } from 'src/libs/files/files.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { helpText, newText, startText } from '../texts';
+import { errorText, helpText, newText, roleText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
 @Scene('set_role')
@@ -17,14 +17,11 @@ export class SetRoleScene {
         private readonly filesService: FilesService,
         private readonly chatgptService: ChatgptService,
         private readonly configService: ConfigService,
-    ) {}
+    ) { }
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
-        ctx.reply(
-            'Опишите текстом или голосовым сообщением как должен вести себя бот. Пример описания:\n' +
-                'Отвечай как будто ты великий математик.',
-        );
+        ctx.reply(roleText);
     }
 
     @Start()
@@ -60,7 +57,7 @@ export class SetRoleScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -76,18 +73,18 @@ export class SetRoleScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
 
     @Command('new')
     async onNew(@Ctx() ctx: SceneContext) {
-        const userId = ctx.message.from.id
+        const userId = ctx.message.from.id;
 
         await this.sessionService.create(userId.toString());
 
-        await ctx.reply(newText)
+        await ctx.reply(newText);
 
     }
 
@@ -106,7 +103,7 @@ export class SetRoleScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -129,7 +126,7 @@ export class SetRoleScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }

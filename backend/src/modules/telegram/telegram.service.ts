@@ -6,7 +6,7 @@ import { SessionService } from 'src/modules/session/session.service';
 
 import { Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
-import { helpText, newText, startText } from './texts';
+import { errorText, helpText, newText, startText } from './texts';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -45,7 +45,7 @@ export class TelegramService extends Telegraf<SceneContext> {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -61,7 +61,7 @@ export class TelegramService extends Telegraf<SceneContext> {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -84,7 +84,7 @@ export class TelegramService extends Telegraf<SceneContext> {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }

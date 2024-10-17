@@ -7,7 +7,7 @@ import { MessageService } from 'src/modules/message/message.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { escapeSymbols } from 'src/utils/escapeSymbols';
 import { FilesService } from 'src/libs/files/files.service';
-import { helpText, newText, startText } from '../texts';
+import { answerGenerationText, errorText, helpText, newText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
@@ -44,7 +44,7 @@ export class GptScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -61,7 +61,7 @@ export class GptScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -92,7 +92,7 @@ export class GptScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -130,7 +130,7 @@ export class GptScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -138,7 +138,7 @@ export class GptScene {
     @On('text')
     async onTextMessage(@Ctx() ctx: SceneContext, @Message('text') text: string) {
         try {
-            const infoMessage = await ctx.replyWithHTML('<code>Подождите, идет генерация ответа...</code>');
+            const infoMessage = await ctx.replyWithHTML(answerGenerationText);
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
@@ -190,7 +190,7 @@ export class GptScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -198,7 +198,7 @@ export class GptScene {
     @On('voice')
     async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
         try {
-            const infoMessage = await ctx.replyWithHTML('<code>Подождите, идет генерация ответа...</code>');
+            const infoMessage = await ctx.replyWithHTML(answerGenerationText);
             const userId = ctx.message.from.id.toString();
 
             const session = await this.sessionService.findCurrentUserSession(userId);
@@ -254,7 +254,7 @@ export class GptScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
