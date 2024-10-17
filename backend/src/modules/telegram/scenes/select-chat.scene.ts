@@ -8,22 +8,20 @@ import { Logger } from '@nestjs/common';
 import { helpText, newText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
-@Scene('set_role')
-export class SetRoleScene {
-    private readonly logger = new Logger(SetRoleScene.name);
+@Scene('selectChat')
+export class SelectChatScene {
+    private readonly logger = new Logger(SelectChatScene.name);
     constructor(
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
-        private readonly filesService: FilesService,
-        private readonly chatgptService: ChatgptService,
         private readonly configService: ConfigService,
     ) {}
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
         ctx.reply(
-            'Опишите текстом или голосовым сообщением как должен вести себя бот. Пример описания:\n' +
-                'Отвечай как будто ты великий математик.',
+            'Опишите изображение текстом или голосовым сообщением. Пример описания:\n' +
+                'Медведь как космический командир.',
         );
     }
 
@@ -35,11 +33,6 @@ export class SetRoleScene {
     @Help()
     async onHelp(@Ctx() ctx: SceneContext) {
         await ctx.replyWithHTML(helpText);
-    }
-
-    @Command('image')
-    async onImage(@Ctx() ctx: SceneContext) {
-        await ctx.scene.enter('image');
     }
 
     @Command('settings')
@@ -92,45 +85,12 @@ export class SetRoleScene {
     }
 
     @On('text')
-    async onText(@Ctx() ctx: SceneContext, @Message('text') text: string) {
-        try {
-            const { id } = ctx.message.from;
-            const session = await this.sessionService.findCurrentUserSession(id.toString());
-            await this.sessionService.update(session.id, { assistantRole: text });
-
-            await ctx.reply('Сохранено!');
-            await ctx.scene.leave();
-        } catch (error) {
-            const isDev = this.configService.get('NODE_ENV') === 'dev';
-            if (isDev) {
-                this.logger.error(error);
-                await ctx.reply(error.message);
-            } else {
-                await ctx.reply('Что-то пошло нет так');
-            }
-        }
+    async onText(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('gpt_scene');
     }
 
     @On('voice')
-    async onVoice(@Ctx() ctx: SceneContext, @Message('voice') voice: any) {
-        try {
-            const { id } = ctx.message.from;
-            const fileLink = await ctx.telegram.getFileLink(voice.file_id);
-            const filepath = await this.filesService.downloadFile(fileLink.href, id.toString(), 'ogg');
-            const transcription = await this.chatgptService.transcription(filepath);
-            const session = await this.sessionService.findCurrentUserSession(id.toString());
-            await this.sessionService.update(session.id, { assistantRole: transcription });
-
-            await ctx.reply('Сохранено!');
-            await ctx.scene.leave();
-        } catch (error) {
-            const isDev = this.configService.get('NODE_ENV') === 'dev';
-            if (isDev) {
-                this.logger.error(error);
-                await ctx.reply(error.message);
-            } else {
-                await ctx.reply('Что-то пошло нет так');
-            }
-        }
+    async onVoice(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('gpt_scene');
     }
 }

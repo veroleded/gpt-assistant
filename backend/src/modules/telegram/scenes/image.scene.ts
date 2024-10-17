@@ -5,7 +5,7 @@ import { FilesService } from 'src/libs/files/files.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { helpText, startText } from '../texts';
+import { helpText, newText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
 type ImageSize = '256x256' | '512x512' | '1024x1024' | '1792x1024' | '1024x1792';
@@ -42,6 +42,16 @@ export class ImageScene {
     @Command('settings')
     async onSettings(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('settings');
+    }
+
+    @Command('new')
+    async onNew(@Ctx() ctx: SceneContext) {
+        const userId = ctx.message.from.id
+
+        await this.sessionService.create(userId.toString());
+
+        await ctx.reply(newText)
+
     }
 
     @Command('deletecontext')

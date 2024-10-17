@@ -3,7 +3,7 @@ import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/modules/session/session.service';
 import { Markup } from 'telegraf';
 
-import { helpText, startText, voiceSettingText } from '../texts';
+import { helpText, newText, startText, voiceSettingText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 import { imageSizes, textModels } from 'src/modules/chatgpt/const/models';
 import { VoiceName } from '@prisma/client';
@@ -534,6 +534,16 @@ export class SettingsScene {
                 await ctx.reply('Что-то пошло нет так');
             }
         }
+    }
+
+    @Command('new')
+    async onNew(@Ctx() ctx: SceneContext) {
+        const userId = ctx.message.from.id
+
+        await this.sessionService.create(userId.toString());
+
+        await ctx.reply(newText)
+
     }
 
     @Command('image')

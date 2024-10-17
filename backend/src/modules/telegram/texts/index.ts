@@ -47,3 +47,9 @@ export const voiceSettingText = [
     'Женские: nova | shimmer',
     'Мужские: alloy | echo | fable | onyx',
 ].join('\n');
+
+
+export const newText = [
+    'Вы начали новый диалог!' +
+    'Что бы вернуться к предыдущим используйте команду /chats .'
+].join('\n')

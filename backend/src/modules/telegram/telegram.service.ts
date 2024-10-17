@@ -6,13 +6,12 @@ import { SessionService } from 'src/modules/session/session.service';
 
 import { Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
-import { helpText, startText } from './texts';
+import { helpText, newText, startText } from './texts';
 import { UserService } from '../user/user.service';
 
-interface Context extends SceneContext { }
 @Injectable()
 @Update()
-export class TelegramService extends Telegraf<Context> {
+export class TelegramService extends Telegraf<SceneContext> {
     private readonly logger = new Logger(TelegramService.name);
     constructor(
         private readonly configService: ConfigService,
@@ -24,7 +23,7 @@ export class TelegramService extends Telegraf<Context> {
     }
 
     @Start()
-    async onStart(@Ctx() ctx: Context) {
+    async onStart(@Ctx() ctx: SceneContext) {
         try {
             const { id, first_name, last_name, language_code, username } = ctx.message.from;
             await this.userService.create({
@@ -52,7 +51,7 @@ export class TelegramService extends Telegraf<Context> {
     }
 
     @Command('account')
-    async onBalance(@Ctx() ctx: Context) {
+    async onBalance(@Ctx() ctx: SceneContext) {
         try {
             const balance = await this.balanceService.getBalance();
             await ctx.reply(balance + ' рублей.');
@@ -73,7 +72,7 @@ export class TelegramService extends Telegraf<Context> {
     }
 
     @Command('deletecontext')
-    async onContext(@Ctx() ctx: Context) {
+    async onContext(@Ctx() ctx: SceneContext) {
         try {
             const { id } = ctx.message.from;
             const session = await this.sessionService.findCurrentUserSession(id.toString());
@@ -96,17 +95,27 @@ export class TelegramService extends Telegraf<Context> {
     }
 
     @Command('settings')
-    async onSettings(@Ctx() ctx: Context) {
+    async onSettings(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('settings');
     }
 
+    @Command('new')
+    async onNew(@Ctx() ctx: SceneContext) {
+        const userId = ctx.message.from.id
+
+        await this.sessionService.create(userId.toString());
+
+        await ctx.reply(newText)
+
+    }
+
     @On('text')
-    async onText(@Ctx() ctx: Context) {
+    async onText(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('gpt_scene');
     }
 
     @On('voice')
-    async onVoice(@Ctx() ctx: Context) {
+    async onVoice(@Ctx() ctx: SceneContext) {
         await ctx.scene.enter('gpt_scene');
     }
 }

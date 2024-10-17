@@ -18,7 +18,7 @@ export class SessionService {
             },
         });
 
-        return session;
+        return await this.updateCurrentSession(session.id);
     }
 
     async findCurrentUserSession(userId: string) {
@@ -67,4 +67,25 @@ export class SessionService {
             data: updateSessionDto,
         });
     }
+
+    async updateCurrentSession(id: string) {
+        const [_, session] = await this.prismaService.$transaction([
+            this.prismaService.session.updateMany({
+                data: {
+                    current: false,
+                },
+            }),
+            this.prismaService.session.update({
+                where: {
+                    id
+                },
+                data: {
+                    current: true,
+                },
+            }),
+        ]);
+
+        return session;
+    }
+
 }
