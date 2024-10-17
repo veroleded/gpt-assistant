@@ -5,23 +5,23 @@ import { FilesService } from 'src/libs/files/files.service';
 import { ChatgptService } from 'src/modules/chatgpt/chatgpt.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
-import { helpText, newText, startText } from '../texts';
+import { errorText, helpText, newText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 
-@Scene('selectChat')
+@Scene('select_chat')
 export class SelectChatScene {
     private readonly logger = new Logger(SelectChatScene.name);
     constructor(
         private readonly sessionService: SessionService,
         private readonly balanceService: BalanceService,
         private readonly configService: ConfigService,
-    ) {}
+    ) { }
 
     @SceneEnter()
     async enter(@Ctx() ctx: SceneContext) {
         ctx.reply(
             'Опишите изображение текстом или голосовым сообщением. Пример описания:\n' +
-                'Медведь как космический командир.',
+            'Медведь как космический командир.',
         );
     }
 
@@ -40,6 +40,11 @@ export class SelectChatScene {
         await ctx.scene.enter('settings');
     }
 
+    @Command('chats')
+    async onChats(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('select_chat')
+    }
+
     @Command('deletecontext')
     async onContext(@Ctx() ctx: SceneContext) {
         try {
@@ -53,7 +58,7 @@ export class SelectChatScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
@@ -69,19 +74,34 @@ export class SelectChatScene {
                 this.logger.error(error);
                 await ctx.reply(error.message);
             } else {
-                await ctx.reply('Что-то пошло нет так');
+                await ctx.reply(errorText);
             }
         }
     }
 
     @Command('new')
     async onNew(@Ctx() ctx: SceneContext) {
-        const userId = ctx.message.from.id
+        try {
 
-        await this.sessionService.create(userId.toString());
+            const userId = ctx.message.from.id;
 
-        await ctx.reply(newText)
+            await this.sessionService.create(userId.toString());
 
+            await ctx.reply(newText);
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply(errorText);
+            }
+        }
+    }
+
+    @Command('role')
+    async onRole(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('set_role')
     }
 
     @On('text')

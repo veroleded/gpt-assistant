@@ -12,9 +12,8 @@ export class SessionService {
         const session = await this.prismaService.session.create({
             data: {
                 ...createSessionDto,
-                user: {
-                    connect: { id: userId },
-                },
+                userId,
+
             },
         });
 

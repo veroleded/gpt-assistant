@@ -101,12 +101,33 @@ export class TelegramService extends Telegraf<SceneContext> {
 
     @Command('new')
     async onNew(@Ctx() ctx: SceneContext) {
-        const userId = ctx.message.from.id
+        try {
 
-        await this.sessionService.create(userId.toString());
+            const userId = ctx.message.from.id;
 
-        await ctx.reply(newText)
+            await this.sessionService.create(userId.toString());
 
+            await ctx.reply(newText);
+        } catch (error) {
+            const isDev = this.configService.get('NODE_ENV') === 'dev';
+            if (isDev) {
+                this.logger.error(error);
+                await ctx.reply(error.message);
+            } else {
+                await ctx.reply(errorText);
+            }
+        }
+
+    }
+
+    @Command('chats')
+    async onChats(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('select_chat')
+    }
+
+    @Command('role')
+    async onRole(@Ctx() ctx: SceneContext) {
+        await ctx.scene.enter('set_role')
     }
 
     @On('text')
