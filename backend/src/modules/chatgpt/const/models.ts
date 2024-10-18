@@ -1,8 +1,12 @@
 export const textModels = {
+    o1preview: 'o1-preview',
+    o1mini: 'o1-mini',
     gpt4o: 'gpt-4o',
+    gpt4omini: 'gpt-4o-mini',
     gpt4turbo: 'gpt-4-turbo',
     gpt4: 'gpt4',
     gpt35turbo: 'gpt-3.5-turbo',
+
 } as const;
 
 export const imageModels = {
