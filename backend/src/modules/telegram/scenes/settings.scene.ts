@@ -3,7 +3,7 @@ import { SceneContext } from 'telegraf/typings/scenes';
 import { SessionService } from 'src/modules/session/session.service';
 import { Markup } from 'telegraf';
 
-import { errorText, helpText, newText, startText, voiceSettingText } from '../texts';
+import { errorText, helpText, modelsDescText, newText, startText, voiceSettingText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
 import { imageSizes, textModels } from 'src/modules/chatgpt/const/models';
 import { VoiceName } from '@prisma/client';
@@ -57,10 +57,10 @@ export class SettingsScene {
     @Action('models')
     async setModel(@Ctx() ctx: SceneContext) {
         try {
-            const buttons = Object.entries(textModels).map(([key, value]) => Markup.button.callback(value, key));
+            const buttons = Object.entries(textModels).map(([key, value]) => [Markup.button.callback(value, key)]);
             await ctx.editMessageText(
-                'Выберете модель',
-                Markup.inlineKeyboard([buttons, [Markup.button.callback('Назад', 'back')]]),
+                modelsDescText,
+                Markup.inlineKeyboard([...buttons, [Markup.button.callback('Назад', 'back')]]),
             );
         } catch (error) {
             const isDev = this.configService.get('NODE_ENV') === 'dev';
