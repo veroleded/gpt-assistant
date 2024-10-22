@@ -5,7 +5,7 @@ import { PrismaService } from 'src/libs/primsa/prisma.service';
 
 @Injectable()
 export class MessageService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(private readonly prismaService: PrismaService) { }
 
     async create(createMessageDto: CreateMessageDto) {
         const message = await this.prismaService.message.create({
@@ -41,19 +41,20 @@ export class MessageService {
         return message;
     }
 
-    findAll() {
-        return `This action returns all message`;
+
+    async remove(id: string) {
+        await this.prismaService.message.delete({
+            where: { id }
+        });
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} message`;
-    }
-
-    update(id: number, updateMessageDto: UpdateMessageDto) {
-        return `This action updates a #${id} message`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} message`;
+    async removeMany(ids: string[]) {
+        await this.prismaService.message.deleteMany({
+            where: {
+                id: {
+                    in: ids
+                }
+            }
+        });
     }
 }

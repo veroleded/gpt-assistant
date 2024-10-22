@@ -16,20 +16,24 @@ model User {
   createAt     DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
   session      Session[]
-
-  // sessionOnUser SessionOnUser[]
 }
 
 model Session {
-  id        String    @id @default(uuid())
-  model     String    @default("gpt-3.5-turbo")
-  context   String?
-  createAt  DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  voice     Boolean   @default(false)
-  messages  Message[]
-  user      User[]
-  // sessionOnUser SessionOnUser[]
+  id            String    @id @default(uuid())
+  name          String?
+  model         String    @default("gpt-4o")
+  assistantRole String?   @map("assistant_role")
+  voice         Boolean   @default(false)
+  voiceName     VoiceName @default(alloy) @map("voice_name")
+  onContext     Boolean   @default(true)
+  imageSize     String    @default("1024x1024") @map("image_size")
+  imageStyle    String?   @map("image_style")
+  current       Boolean   @default(true)
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String    @map("user_id")
+  messages      Message[] 
+  createAt      DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 }
 
 model Message {
@@ -39,7 +43,7 @@ model Message {
   createAt  DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  session   Session @relation(fields: [sessionId], references: [id])
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId String  @map("session_id")
 }
 
@@ -47,4 +51,13 @@ enum Role {
   assistant
   user
   system
+}
+
+enum VoiceName {
+  alloy
+  echo
+  fable
+  onyx
+  nova
+  shimmer
 }

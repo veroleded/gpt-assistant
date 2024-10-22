@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { createReadStream, write } from 'fs';
+import { VoiceName } from '@prisma/client';
+import { createReadStream } from 'fs';
 import OpenAI from 'openai';
 import { FilesService } from 'src/libs/files/files.service';
-
 
 @Injectable()
 export class ChatgptService {
@@ -16,23 +16,33 @@ export class ChatgptService {
         messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
         model: string = 'gpt-3.5-turbo',
     ): Promise<OpenAI.Chat.Completions.ChatCompletionMessage> {
-        try {
-            const chatCompletion = await this.openai.chat.completions.create({
-                model,
-                messages,
-            });
+        const chatCompletion = await this.openai.chat.completions.create({
+            model,
+            messages,
+        });
 
-            return chatCompletion.choices[0].message;
-        } catch (error) {
-            this.logger.error(error);
-            throw new Error(error);
-        }
+        return chatCompletion.choices[0].message;
     }
 
-    async generateVoiceResponse(input: string, filename: string) {
+    async generateImage(
+        prompt: string,
+        size: OpenAI.Images.ImageGenerateParams['size'],
+        style?: OpenAI.Images.ImageGenerateParams['style'],
+    ) {
+        const image = await this.openai.images.generate({
+            prompt,
+            size,
+            model: 'dall-e-3',
+            ...(style && { style: style }),
+        });
+
+        return image.data[0].url;
+    }
+
+    async generateVoiceResponse(input: string, voice: VoiceName, filename: string) {
         const mp3 = await this.openai.audio.speech.create({
             model: 'tts-1',
-            voice: 'alloy',
+            voice,
             input,
         });
 

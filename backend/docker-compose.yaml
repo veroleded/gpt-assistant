@@ -15,7 +15,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        container_name: backend
+        container_name: gpt-assistant
         volumes:
             - .:/app
         restart: unless-stopped
