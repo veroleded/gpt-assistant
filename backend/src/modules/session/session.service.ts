@@ -3,7 +3,6 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { PrismaService } from 'src/libs/primsa/prisma.service';
 import { MessageService } from '../message/message.service';
-import { options } from '../telegram/telegram-config.factory';
 
 @Injectable()
 export class SessionService {
@@ -78,6 +77,7 @@ export class SessionService {
     }
 
     async updateCurrentSession(id: string) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_, session] = await this.prismaService.$transaction([
             this.prismaService.session.updateMany({
                 data: {

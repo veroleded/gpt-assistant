@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { dialogEmptyText, dialogText, errorText, helpText, newText, startText } from '../texts';
 import { BalanceService } from 'src/libs/balance/balance.service';
-import { Markup, session } from 'telegraf';
+import { Markup } from 'telegraf';
 
 @Scene('select_chat')
 export class SelectChatScene {
