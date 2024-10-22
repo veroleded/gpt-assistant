@@ -70,7 +70,7 @@ export const newText = [
 export const iamgeText = [
     'Опишите изображение текстом или голосовым сообщением. Пример описания:',
     'Медведь как космический командир.',
-].join['\n'];
+].join('\n');
 
 export const errorText = 'Что-то пошло не так';
 
