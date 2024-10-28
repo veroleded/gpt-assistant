@@ -44,7 +44,6 @@ GPT Assistant is an advanced Telegram bot powered by ChatGPT, designed for conve
 4. **Local launch** (without Docker):
    ```bash
    make install
-   make build
    make start
    ```
 

@@ -1,8 +1,5 @@
 install:
-		- npm run setup
-
-build:
-		- npm run build
+		- npm run setup && npm run build
 
 start:
 
