@@ -11,16 +11,16 @@ services:
         networks:
             - database
 
-    backend:
+    server:
         build:
             context: .
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         container_name: gpt-assistant
         volumes:
             - .:/app
         restart: unless-stopped
         working_dir: /app
-        command: ['npm', 'run', 'start:push:dev']
+        command: ['npm', 'run', 'start:push:prod']
         ports:
             - '3000:3000'
         env_file:
