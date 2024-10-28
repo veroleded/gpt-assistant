@@ -51,15 +51,15 @@ GPT Assistant is an advanced Telegram bot powered by ChatGPT, designed for conve
 
 1. **Connect to Telegram**: Start the bot and follow the instructions for setup.
 2. **Команды**:
-   - /settings - настройка текущего диалога
-   - /deletecontext - удалить контекст текущего диалога
-   - /image - генерация изображений
-   - /newchat - новый диалог
-   - /chats - выбор диалога
-   - /role - задать роль ассистенту текущего диалога
-   - /start - описание бота
-   - /help - основные команды
-   - /account - мой профиль, баланс
+   - /settings - configure the current conversation
+   - /deletecontext - delete the current conversation context
+   - /image - generate images
+   - /newchat - start a new conversation
+   - /chats - select a conversation
+   - /role - assign a role to the assistant for the current conversation
+   - /start - bot description
+   - /help - main commands
+   - /account - my profile, balance
 
 ## Contribution
 
