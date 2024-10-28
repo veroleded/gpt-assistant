@@ -20,7 +20,7 @@ services:
             - .:/app
         restart: unless-stopped
         working_dir: /app
-        command: ['npm', 'run', 'start:push:prod']
+        command: ['npm', 'run', 'start:push:dev']
         ports:
             - '3000:3000'
         env_file:
