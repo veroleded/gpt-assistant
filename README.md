@@ -19,34 +19,48 @@ GPT Assistant is an advanced Telegram bot powered by ChatGPT, designed for conve
 ## Installation and Setup
 
 ### Prerequisites
+
 - **Docker** and **Docker Compose**
 - **Node.js** and **npm**
 
 ### Installation Steps
 
 1. **Clone the repository**:
-    ```bash
-    git clone git@github.com:veroleded/gpt-assistant.git
-    cd gpt-assistant
-    ```
+
+   ```bash
+   git clone git@github.com:veroleded/gpt-assistant.git
+   cd gpt-assistant
+   ```
 
 2. **Configure environment variables**:  
    Copy the `.env.example` file in the backend folder and rename it to `.env`. Enter all required keys and parameters (you will need a Telegram bot token and OpenAI API key).
 
 3. **Run Docker containers**:
-    ```bash
-    make docker-start
-    ```
 
-4. **Local launch** (without Docker):  
-    ```bash
-    make install
-    make start
-    ```
+   ```bash
+   make docker-start
+   ```
+
+4. **Local launch** (without Docker):
+   ```bash
+   make install
+   make start
+   ```
 
 ### Usage
 
 1. **Connect to Telegram**: Start the bot and follow the instructions for setup.
+2. **Команды**:
+   - /settings - настройка текущего диалога
+   - /deletecontext - удалить контекст текущего диалога
+   - /image - генерация изображений
+   - /newchat - новый диалог
+   - /chats - выбор диалога
+   - /role - задать роль ассистенту текущего диалога
+   - /start - описание бота
+   - /help - основные команды
+   - /account - мой профиль, баланс
 
 ## Contribution
+
 We welcome PRs and suggestions to improve the project.
