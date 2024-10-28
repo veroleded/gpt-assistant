@@ -35,6 +35,7 @@ GPT Assistant is an advanced Telegram bot powered by ChatGPT, designed for conve
 
 3. **Run Docker containers**:
     ```bash
+    cd backend
     docker-compose up -d
     ```
 
