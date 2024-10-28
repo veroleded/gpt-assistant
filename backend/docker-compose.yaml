@@ -16,8 +16,8 @@ services:
             context: .
             dockerfile: Dockerfile
         container_name: gpt-assistant
-        volumes:
-            - .:/app
+        # volumes:
+        #     - .:/app
         restart: unless-stopped
         working_dir: /app
         command: ['npm', 'run', 'start:push:prod']

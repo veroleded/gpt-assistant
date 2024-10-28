@@ -397,6 +397,7 @@ export class SettingsScene {
                     Markup.inlineKeyboard([
                         [Markup.button.callback('Выбрать размер', 'imageSize')],
                         [Markup.button.callback('Выбрать стиль', 'imageStyle')],
+                        [Markup.button.callback('Назад', 'back')],
                     ]),
                 );
             }
@@ -428,6 +429,7 @@ export class SettingsScene {
                         [Markup.button.callback('Выбор модели', 'models')],
                         [Markup.button.callback('Голосовые ответы', 'voice')],
                         [Markup.button.callback(`${session.onContext ? '✅' : '❌'} Поддержка контекста`, 'context')],
+                        [Markup.button.callback('Изображения', 'image')],
                     ]),
                 );
             } else {
